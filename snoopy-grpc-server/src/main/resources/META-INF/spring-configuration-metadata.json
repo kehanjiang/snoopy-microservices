@@ -1,0 +1,38 @@
+{
+  "properties": [
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.server.address",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "服务器绑定监听地址，一般不用配置，仅用于多ip时想自己指定ip"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.server.port",
+      "type": "java.lang.Integer",
+      "description": "服务器绑定监听端口，默认随机，范围[10000,60000]"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.server.weight",
+      "type": "java.lang.Integer",
+      "defaultValue": 5,
+      "description": "服务权重，默认5。权重取值范围区间：整数1-10。当客户端负载均衡策略为weight_random时生效。"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.server.usePlaintext",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "服务端连接是否不加密，默认为false"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.server.useProtoReflection",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否添加反射服务，默认为true"
+    }
+  ]
+}
