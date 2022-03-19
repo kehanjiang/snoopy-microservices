@@ -1,14 +1,72 @@
-plugins {
-    id 'java'
+description = 'snoopy microservices system'
+
+allprojects {
+	group 'com.snoopy'
+	version '1.0-SNAPSHOT'
+	apply from: "${rootProject.projectDir}/libraries.gradle"
 }
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+	apply plugin: 'maven-publish'
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
-repositories {
-    mavenCentral()
-}
+	//依赖缓存时间
+	configurations.all {
+		resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+	}
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+	buildscript {
+		repositories {
+			mavenCentral()
+			maven {
+				url "https://plugins.gradle.org/m2/"
+			}
+		}
+		dependencies {
+			classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+			classpath "gradle.plugin.com.virgo47.gradle:ClasspathJar:1.0.0"
+			classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
+		}
+	}
+
+	repositories {
+		maven {
+			credentials {
+				username = "${NEXUS_USER}"
+				password = "${NEXUS_PASSWORD}"
+			}
+			url "http://121.4.126.92:8081/repository/maven-public/"
+		}
+	}
+
+	// 上传source
+	task sourcesJar(type: Jar) {
+		from sourceSets.main.allJava
+		classifier = 'sources'
+	}
+
+	publishing {
+		publications {
+			library(MavenPublication) {
+				from components.java
+				artifact sourcesJar
+			}
+		}
+		repositories {
+			maven {
+				credentials {
+					username = "${NEXUS_USER}"
+					password = "${NEXUS_PASSWORD}"
+				}
+				if (project.version.endsWith('-SNAPSHOT')) {
+					url "http://121.4.126.92:8081/repository/maven-snapshots/"
+				} else {
+					url "http://121.4.126.92:8081/repository/maven-releases/"
+				}
+			}
+		}
+	}
 }

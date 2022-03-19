@@ -1,0 +1,101 @@
+{
+  "properties": [
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.registry.protocol",
+      "type": "java.lang.String",
+      "defaultValue": "zookeeper",
+      "description": "注册协议[ zookeeper | direct ]。默认zookeeper,暂时仅支持zookeeper和direct，后续支持etcd、nacos、eureka、consul。"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.registry.address",
+      "type": "java.lang.String",
+      "description": "注册中心地址。多个地址用逗号隔开。如master:2181,slave1:2181,slave2:2181"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.registry.username",
+      "type": "java.lang.String",
+      "description": "注册中心用户名。当zookeeper启用acl时配置"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.registry.password",
+      "type": "java.lang.String",
+      "description": "注册中心密码。当zookeeper启用acl时配置"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.authority",
+      "type": "java.lang.String",
+      "description": " 判断认证授权主体，证书DNS名 "
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.ca.certFile",
+      "type": "org.springframework.core.io.Resource",
+      "description": " 认证CA证书文件, X.509 PEM格式"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.ca.crlFile",
+      "type": "org.springframework.core.io.Resource",
+      "description": " 证书吊销列表文件, X.509 PEM格式"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.server.certFile",
+      "type": "org.springframework.core.io.Resource",
+      "description": " 服务端证书文件, X.509 PEM格式"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.server.keyFile",
+      "type": "org.springframework.core.io.Resource",
+      "description": "服务端证书私钥文件，PKCS#8 PEM格式"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.server.keyPassword",
+      "type": "java.lang.String",
+      "description": "服务端证书私钥文件保护密码，如果私钥文件无密码保护则不用配置"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.server.clientAuth",
+      "type": "io.netty.handler.ssl.ClientAuth",
+      "description": "设置客户端身份验证模式。 默认不配置。[NONE | OPTIONAL | REQUIRE] 默认REQUIRE"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.client.certFile",
+      "type": "org.springframework.core.io.Resource",
+      "description": " 客户端证书文件, X.509 PEM格式"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.client.keyFile",
+      "type": "org.springframework.core.io.Resource",
+      "description": "客户端证书私钥文件，PKCS#8 PEM格式"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.client.keyPassword",
+      "type": "java.lang.String",
+      "description": "客户端证书私钥文件保护密码，如果私钥文件无密码保护则不用配置"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.ciphers",
+      "type": "java.lang.String",
+      "description": "要启用的密码套件 ,多个密码套件用逗号隔开 例：TLS_AES_256_GCM_SHA384,ECDHE-RSA-AES256-GCM-SHA384。"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.protocols",
+      "type": "java.lang.String",
+      "description": "要启用的 TLS'协议版本 ,多个协议版本用逗号隔开 例：TLSv1.3,TLSv1.2。"
+    }
+  ]
+}

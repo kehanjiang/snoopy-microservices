@@ -1,0 +1,27 @@
+ext {
+    springBootVersion = "2.3.7.RELEASE"
+    grpcVersion = "1.25.0"
+    boringsslVersion = "2.0.26.Final"
+
+    library = [
+            //grpc,  netty
+            grpc_netty                         : "io.grpc:grpc-netty:${grpcVersion}",
+            grpc_protobuf                      : "io.grpc:grpc-protobuf:${grpcVersion}",
+            grpc_stub                          : "io.grpc:grpc-stub:${grpcVersion}",
+            grpc_services                      : "io.grpc:grpc-services:${grpcVersion}",
+            netty_tcnative_boringssl_static    : "io.netty:netty-tcnative-boringssl-static:${boringsslVersion}",
+
+            //springboot
+            spring_boot_starter                : "org.springframework.boot:spring-boot-starter:${springBootVersion}",
+            spring_boot_configuration_processor: "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}",
+            spring_boot_starter_test           : "org.springframework.boot:spring-boot-starter-test:${springBootVersion}",
+
+            //apache commons
+            commons_lang                       : "org.apache.commons:commons-lang3:3.5",
+            commons_io                         : "commons-io:commons-io:2.5",
+
+            //zookeeper
+            zookeeper                          : "org.apache.zookeeper:zookeeper:3.4.10",
+            zkclient                           : "com.101tec:zkclient:0.10",
+    ]
+}

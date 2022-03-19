@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.client.usePlaintext",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "客户端连接是否不加密，默认为false"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.client.loadBalancingPolicy",
+      "type": "java.lang.String",
+      "defaultValue": "round_robin",
+      "description": "客户端负载均衡策略[ round_robin | weight_random | pick_first]，默认为round_robin"
+    }
+  ]
+}

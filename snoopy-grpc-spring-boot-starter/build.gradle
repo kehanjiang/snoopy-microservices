@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":snoopy-grpc-client")
+    compile project(":snoopy-grpc-server")
+    compile project(":snoopy-grpc-services")
+}

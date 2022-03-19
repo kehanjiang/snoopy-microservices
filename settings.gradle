@@ -1,2 +1,8 @@
 rootProject.name = 'snoopy-microservices'
+include 'snoopy-grpc-base'
+include 'snoopy-grpc-client'
+include 'snoopy-grpc-server'
+include 'snoopy-grpc-services'
+include 'snoopy-grpc-spring-boot-starter'
+
 
