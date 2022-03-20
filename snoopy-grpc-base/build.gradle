@@ -18,7 +18,6 @@ dependencies {
     compile library.commons_lang
     compile library.commons_io
 
-
     //springboot
     compile library.spring_boot_starter
     compile library.spring_boot_configuration_processor
