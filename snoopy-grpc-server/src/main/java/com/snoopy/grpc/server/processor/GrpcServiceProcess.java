@@ -6,6 +6,7 @@ import com.snoopy.grpc.base.registry.IRegistry;
 import com.snoopy.grpc.base.registry.RegistryProviderFactory;
 import com.snoopy.grpc.base.registry.RegistryServiceInfo;
 import com.snoopy.grpc.base.utils.LoggerBaseUtil;
+import com.snoopy.grpc.server.annotation.SnoopyGrpcGlobalServerInterceptor;
 import com.snoopy.grpc.server.annotation.SnoopyGrpcService;
 import com.snoopy.grpc.server.configure.GrpcServerProperties;
 import com.snoopy.grpc.server.reflection.SnoopyServiceUtil;
@@ -37,13 +38,23 @@ public class GrpcServiceProcess implements IGrpcProcess {
 
     private AtomicInteger atomicInteger = new AtomicInteger(0);
 
-    public static Set<RegistryServiceInfo> registryServices = new HashSet<>();
+    protected static Set<RegistryServiceInfo> registryServices = new HashSet<>();
+
+    protected static Set<ServerInterceptor> globalServerInterceptors=new HashSet<>();
 
     public GrpcServiceProcess(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         RegistryProviderFactory registryProviderFactory = applicationContext.getBean(RegistryProviderFactory.class);
         this.grpcServerProperties = applicationContext.getBean(GrpcServerProperties.class);
         this.registry = registryProviderFactory.newRegistryProviderInstance().newRegistryInstance();
+
+        Collection<String> beanNames = Arrays.asList(
+                applicationContext.getBeanNamesForAnnotation(SnoopyGrpcGlobalServerInterceptor.class)
+        );
+        for (String beanName : beanNames) {
+            ServerInterceptor globalServerInterceptor = applicationContext.getBean(beanName, ServerInterceptor.class);
+            globalServerInterceptors.add(globalServerInterceptor);
+        }
     }
 
     @Override
@@ -59,6 +70,9 @@ public class GrpcServiceProcess implements IGrpcProcess {
             SnoopyGrpcService snoopyGrpcService = applicationContext.findAnnotationOnBean(beanName, SnoopyGrpcService.class);
             for (Class<? extends ServerInterceptor> interceptorClass : snoopyGrpcService.interceptors()) {
                 privateInterceptors.add(loadPrivateInterceptorBean(interceptorClass));
+            }
+            if(snoopyGrpcService.applyGlobalServerInterceptors()){
+                privateInterceptors.addAll(globalServerInterceptors);
             }
 
             serverServiceDefinition = ServerInterceptors.interceptForward(serverServiceDefinition, privateInterceptors);

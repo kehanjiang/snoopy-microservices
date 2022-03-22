@@ -29,7 +29,7 @@ public class GrpcReflectionProcess implements IGrpcProcess {
 
     @Override
     public int getOrder() {
-        return 4;
+        return 2;
     }
 
 

@@ -29,10 +29,6 @@ public class GrpcServerAutoConfiguration {
         return new GrpcServerProperties();
     }
 
-    @Bean
-    public GrpcInterceptProcess grpcInterceptProcess(ApplicationContext applicationContext) {
-        return new GrpcInterceptProcess(applicationContext);
-    }
 
     @Bean
     @ConditionalOnBean({
@@ -63,7 +59,6 @@ public class GrpcServerAutoConfiguration {
     @ConditionalOnBean({
             GrpcServerProperties.class,
             GrpcServiceProcess.class,
-            GrpcInterceptProcess.class,
             GrpcSecurityProcess.class
     })
     public NettyServerFactory nettyServerFactory(GrpcServerProperties properties, List<IGrpcProcess> processes) {

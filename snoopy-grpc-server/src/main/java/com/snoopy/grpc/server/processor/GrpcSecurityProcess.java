@@ -79,7 +79,7 @@ public class GrpcSecurityProcess implements IGrpcProcess {
 
     @Override
     public int getOrder() {
-        return 2;
+        return 1;
     }
 
     /**

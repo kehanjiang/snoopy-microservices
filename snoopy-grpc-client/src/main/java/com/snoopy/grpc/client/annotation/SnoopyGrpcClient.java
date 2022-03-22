@@ -24,7 +24,7 @@ public @interface SnoopyGrpcClient {
      *
      * @return
      */
-    String namespace();
+    String namespace() default "Default";
 
     /**
      * 别名
@@ -32,6 +32,13 @@ public @interface SnoopyGrpcClient {
      * @return
      */
     String alias();
+
+    /**
+     * 是否添加客户端全局拦截器
+     *
+     * @return
+     */
+    boolean applyGlobalClientInterceptors() default true;
 
     /**
      * 客户端拦截器

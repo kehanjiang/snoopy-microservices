@@ -8,10 +8,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author :   kehanjiang
@@ -22,9 +19,18 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
 
     private Object bean;
 
+    protected static Set<ClientInterceptor> globalClientInterceptors = new HashSet<>();
+
     public GrpcClientFieldCallback(ConfigurableListableBeanFactory cbf, Object bean) {
         this.configurableListableBeanFactory = cbf;
         this.bean = bean;
+        Collection<String> beanNames = Arrays.asList(
+                configurableListableBeanFactory.getBeanNamesForAnnotation(SnoopyGrpcGlobalClientInterceptor.class)
+        );
+        for (String beanName : beanNames) {
+            ClientInterceptor globalClientInterceptor = (ClientInterceptor) configurableListableBeanFactory.getBean(beanName);
+            globalClientInterceptors.add(globalClientInterceptor);
+        }
     }
 
     @Override
@@ -34,12 +40,9 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
         for (Class<? extends ClientInterceptor> clazz : annotation.interceptors()) {
             privateInterceptors.add(loadPrivateInterceptorBean(clazz));
         }
-        Collection<String> beanNames = Arrays.asList(
-                configurableListableBeanFactory.getBeanNamesForAnnotation(SnoopyGrpcGlobalClientInterceptor.class)
-        );
-        for (String beanName : beanNames) {
-            ClientInterceptor globalClientInterceptor = (ClientInterceptor) configurableListableBeanFactory.getBean(beanName);
-            privateInterceptors.add(globalClientInterceptor);
+
+        if (annotation.applyGlobalClientInterceptors()) {
+            privateInterceptors.addAll(globalClientInterceptors);
         }
 
         Class<?> clazz = field.getType();

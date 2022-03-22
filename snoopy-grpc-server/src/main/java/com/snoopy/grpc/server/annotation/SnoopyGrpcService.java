@@ -21,7 +21,7 @@ public @interface SnoopyGrpcService {
      *
      * @return
      */
-    String namespace();
+    String namespace() default "Default";
 
     /**
      * 别名
@@ -29,6 +29,13 @@ public @interface SnoopyGrpcService {
      * @return
      */
     String alias();
+
+    /**
+     * 是否添加服务端全局拦截器
+     *
+     * @return
+     */
+    boolean applyGlobalServerInterceptors() default true;
 
     /**
      * 服务端拦截器

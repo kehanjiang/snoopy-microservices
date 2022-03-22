@@ -5,7 +5,6 @@ import com.snoopy.grpc.base.constans.GrpcConstants;
 import com.snoopy.grpc.base.registry.consul.ConsulRegistryProvider;
 import com.snoopy.grpc.base.registry.direct.DirectRegistryProvider;
 import com.snoopy.grpc.base.registry.etcd.EtcdRegistryProvider;
-import com.snoopy.grpc.base.registry.eureka.EurekaRegistryProvider;
 import com.snoopy.grpc.base.registry.nacos.NacosRegistryProvider;
 import com.snoopy.grpc.base.registry.zookeeper.ZookeeperRegistryProvider;
 
@@ -24,9 +23,6 @@ public class RegistryProviderFactory {
                 break;
             case GrpcConstants.REGISTRY_PROTOCOL_CONSUL:
                 registryProvider = new ConsulRegistryProvider(registryProperties);
-                break;
-            case GrpcConstants.REGISTRY_PROTOCOL_EUREKA:
-                registryProvider = new EurekaRegistryProvider(registryProperties);
                 break;
             case GrpcConstants.REGISTRY_PROTOCOL_NACOS:
                 registryProvider = new NacosRegistryProvider(registryProperties);
