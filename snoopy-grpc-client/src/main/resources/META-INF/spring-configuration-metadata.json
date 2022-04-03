@@ -12,7 +12,39 @@
       "name": "snoopy.grpc.client.loadBalancingPolicy",
       "type": "java.lang.String",
       "defaultValue": "round_robin",
-      "description": "客户端负载均衡策略[ round_robin | weight_random | pick_first]，默认为round_robin"
+      "description": "客户端负载均衡策略，默认为round_robin"
+    }
+  ],
+  "hints": [
+    {
+      "name": "snoopy.grpc.client.usePlaintext",
+      "values": [
+        {
+          "value": true,
+          "description": ""
+        },
+        {
+          "value": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "snoopy.grpc.client.loadBalancingPolicy",
+      "values": [
+        {
+          "value": "round_robin",
+          "description": ""
+        },
+        {
+          "value": "weight_random",
+          "description": ""
+        },
+        {
+          "value": "pick_first",
+          "description": ""
+        }
+      ]
     }
   ]
 }

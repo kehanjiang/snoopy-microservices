@@ -11,14 +11,7 @@ import java.util.Map;
 public final class GrpcConstants {
     public static final String BASE_PATH = "/snoopy";
     public static final String PATH_SEPARATOR = "/";
-    /**
-     * 注册中心
-     */
-    public static final String REGISTRY_PROTOCOL_DIRECT = "direct";
-    public static final String REGISTRY_PROTOCOL_CONSUL = "consul";
-    public static final String REGISTRY_PROTOCOL_NACOS = "nacos";
-    public static final String REGISTRY_PROTOCOL_ETCD = "etcd";
-    public static final String REGISTRY_PROTOCOL_ZOOKEEPER = "zookeeper";
+
     /**
      * 客户端默认负载均衡策略
      */

@@ -34,5 +34,33 @@
       "defaultValue": true,
       "description": "是否添加反射服务，默认为true"
     }
+  ],
+  "hints": [
+    {
+      "name": "snoopy.grpc.server.usePlaintext",
+      "values": [
+        {
+          "value": true,
+          "description": ""
+        },
+        {
+          "value": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "snoopy.grpc.server.useProtoReflection",
+      "values": [
+        {
+          "value": true,
+          "description": ""
+        },
+        {
+          "value": false,
+          "description": ""
+        }
+      ]
+    }
   ]
 }

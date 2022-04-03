@@ -1,12 +1,11 @@
 package com.snoopy.grpc.base.registry;
 
 import com.snoopy.grpc.base.configure.GrpcRegistryProperties;
-import com.snoopy.grpc.base.constans.GrpcConstants;
-import com.snoopy.grpc.base.registry.consul.ConsulRegistryProvider;
-import com.snoopy.grpc.base.registry.direct.DirectRegistryProvider;
-import com.snoopy.grpc.base.registry.etcd.EtcdRegistryProvider;
-import com.snoopy.grpc.base.registry.nacos.NacosRegistryProvider;
-import com.snoopy.grpc.base.registry.zookeeper.ZookeeperRegistryProvider;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * @author :   kehanjiang
@@ -14,32 +13,21 @@ import com.snoopy.grpc.base.registry.zookeeper.ZookeeperRegistryProvider;
  */
 public class RegistryProviderFactory {
 
-    private IRegistryProvider registryProvider;
+    private static IRegistryProvider currentRegistryProvider;
 
     public RegistryProviderFactory(GrpcRegistryProperties registryProperties) {
-        switch (registryProperties.getProtocol()) {
-            case GrpcConstants.REGISTRY_PROTOCOL_DIRECT:
-                registryProvider = new DirectRegistryProvider(registryProperties);
-                break;
-            case GrpcConstants.REGISTRY_PROTOCOL_CONSUL:
-                registryProvider = new ConsulRegistryProvider(registryProperties);
-                break;
-            case GrpcConstants.REGISTRY_PROTOCOL_NACOS:
-                registryProvider = new NacosRegistryProvider(registryProperties);
-                break;
-            case GrpcConstants.REGISTRY_PROTOCOL_ETCD:
-                registryProvider = new EtcdRegistryProvider(registryProperties);
-                break;
-            case GrpcConstants.REGISTRY_PROTOCOL_ZOOKEEPER:
-                registryProvider = new ZookeeperRegistryProvider(registryProperties);
-                break;
-            default:
-                throw new RuntimeException(registryProperties.getProtocol() + " protocol is unSupport !");
+        Map<String, IRegistryProvider> registryProviderMap = new HashMap<>();
+        ServiceLoader<IRegistryProvider> serviceLoader = ServiceLoader.load(IRegistryProvider.class);
+        Iterator<IRegistryProvider> iterable = serviceLoader.iterator();
+        while (iterable.hasNext()) {
+            IRegistryProvider registryProvider = iterable.next();
+            registryProviderMap.put(registryProvider.registryType(), registryProvider);
         }
+        currentRegistryProvider = registryProviderMap.get(registryProperties.getProtocol());
     }
 
     public IRegistryProvider newRegistryProviderInstance() {
-        return registryProvider;
+        return currentRegistryProvider;
     }
 
 }

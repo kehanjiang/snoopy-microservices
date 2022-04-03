@@ -12,4 +12,10 @@ public interface IRegistryProvider {
      */
     IRegistry newRegistryInstance();
 
+    /**
+     * 支持的注册中心类型
+     *
+     * @return
+     */
+    String registryType();
 }

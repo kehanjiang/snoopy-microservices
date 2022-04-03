@@ -4,8 +4,8 @@
       "sourceType": "",
       "name": "snoopy.grpc.registry.protocol",
       "type": "java.lang.String",
-      "defaultValue": "zookeeper",
-      "description": "注册协议[ zookeeper | direct ]。默认zookeeper,暂时仅支持zookeeper和direct，后续支持etcd、nacos、eureka、consul。"
+      "defaultValue": "direct",
+      "description": "注册中心类型，默认 direct"
     },
     {
       "sourceType": "",
@@ -17,13 +17,13 @@
       "sourceType": "",
       "name": "snoopy.grpc.registry.username",
       "type": "java.lang.String",
-      "description": "注册中心用户名。当zookeeper启用acl时配置"
+      "description": "注册中心用户名"
     },
     {
       "sourceType": "",
       "name": "snoopy.grpc.registry.password",
       "type": "java.lang.String",
-      "description": "注册中心密码。当zookeeper启用acl时配置"
+      "description": "注册中心密码"
     },
     {
       "sourceType": "",
@@ -65,7 +65,8 @@
       "sourceType": "",
       "name": "snoopy.grpc.security.server.clientAuth",
       "type": "io.netty.handler.ssl.ClientAuth",
-      "description": "设置客户端身份验证模式。 默认不配置。[NONE | OPTIONAL | REQUIRE] 默认REQUIRE"
+      "defaultValue": "REQUIRE",
+      "description": "设置客户端身份验证模式。 默认REQUIRE"
     },
     {
       "sourceType": "",
@@ -96,6 +97,54 @@
       "name": "snoopy.grpc.security.protocols",
       "type": "java.lang.String",
       "description": "要启用的 TLS'协议版本 ,多个协议版本用逗号隔开 例：TLSv1.3,TLSv1.2。"
+    }
+  ],
+  "hints": [
+    {
+      "name": "snoopy.grpc.registry.protocol",
+      "values": [
+        {
+          "value": "direct",
+          "description": "基础模式，无注册中心"
+        },
+        {
+          "value": "zookeeper",
+          "description": "zookeeper注册中心，前提是项目已引入 'com.snoopy:snoopy-microservices-zookeeper-registry' 依赖包"
+        },
+        {
+          "value": "consul",
+          "description": "consul注册中心，前提是项目已引入 'com.snoopy:snoopy-microservices-consul-registry' 依赖包"
+        },
+        {
+          "value": "nacos",
+          "description": "nacos注册中心，前提是项目已引入 'com.snoopy:snoopy-microservices-nacos-registry' 依赖包"
+        },
+        {
+          "value": "etcd",
+          "description": "etcd注册中心，前提是项目已引入 'com.snoopy:snoopy-microservices-etcd-registry' 依赖包"
+        },
+        {
+          "value": "eureka",
+          "description": "eureka注册中心，前提是项目已引入 'com.snoopy:snoopy-microservices-eureka-registry' 依赖包"
+        }
+      ]
+    },
+    {
+      "name": "snoopy.grpc.security.server.clientAuth",
+      "values": [
+        {
+          "value": "NONE",
+          "description": ""
+        },
+        {
+          "value": "OPTIONAL",
+          "description": ""
+        },
+        {
+          "value": "REQUIRE",
+          "description": ""
+        }
+      ]
     }
   ]
 }

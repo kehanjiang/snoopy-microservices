@@ -7,7 +7,7 @@ package com.snoopy.grpc.base.configure;
  */
 public class GrpcRegistryProperties {
 
-    private String protocol = "zookeeper";
+    private String protocol = "direct";
 
     private String address = "";
 
