@@ -1,6 +1,7 @@
 package com.snoopy.grpc.server.configure;
 
 
+import com.snoopy.grpc.base.constans.GrpcConstants;
 import com.snoopy.grpc.base.utils.NetUtil;
 import org.springframework.util.SocketUtils;
 import org.springframework.util.StringUtils;
@@ -16,7 +17,7 @@ public class GrpcServerProperties {
 
     private static int port = 0;
 
-    private int weight = 5;
+    private int weight = GrpcConstants.DEFAULT_WEIGHT;
 
     private boolean usePlaintext = false;
 

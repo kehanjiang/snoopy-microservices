@@ -99,7 +99,8 @@ public class GrpcClientStubBeanManager {
         RegistryServiceInfo registryServiceInfo = new RegistryServiceInfo(namespace, alias,
                 grpcClientProperties.isUsePlaintext() ? GrpcConstants.PROTOCOL_HTTP2_PLAIN : GrpcConstants.PROTOCOL_HTTP2_SSL,
                 NetUtil.getLocalIpAddress(),
-                SocketUtils.findAvailableTcpPort(10000, 60000), -1);
+                SocketUtils.findAvailableTcpPort(10000, 60000));
+        registryServiceInfo.addParameter(GrpcConstants.PARAMETER_WEIGHT,String.valueOf(GrpcConstants.DEFAULT_WEIGHT));
         IRegistry registry = configurableListableBeanFactory.getBean(RegistryProviderFactory.class).
                 newRegistryProviderInstance().newRegistryInstance(grpcRegistryProperties);
 

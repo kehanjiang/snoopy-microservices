@@ -1,6 +1,7 @@
 package com.snoopy.grpc.client.annotation;
 
 
+import com.snoopy.grpc.base.constans.GrpcConstants;
 import com.snoopy.grpc.client.configure.GrpcClientProperties;
 import io.grpc.ClientInterceptor;
 import org.springframework.beans.factory.BeanCreationException;
@@ -55,6 +56,8 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
         if (StringUtils.hasText(grpcClientProperties.getNamespace())) {
             namespace = grpcClientProperties.getNamespace();
         }
+        namespace = StringUtils.hasText(namespace) ? namespace : GrpcConstants.DEFAULT_NAMESPACE;
+
         String alias = annotation.alias();
 
         Object stubBeanInstance = configurableListableBeanFactory.containsBean(beanName)

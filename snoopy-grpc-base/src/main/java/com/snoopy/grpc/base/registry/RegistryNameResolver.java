@@ -21,7 +21,7 @@ import java.util.Map;
  * @author :   kehanjiang
  * @date :   2021/11/29  21:36
  */
-public class RegistryNameResolver extends NameResolver implements ISubscribeCallback{
+public class RegistryNameResolver extends NameResolver implements ISubscribeCallback {
 
     private GrpcSecurityProperties grpcSecurityProperties;
 
@@ -63,7 +63,8 @@ public class RegistryNameResolver extends NameResolver implements ISubscribeCall
             List<SocketAddress> socketAddresses = new ArrayList<>();
             socketAddresses.add(new InetSocketAddress(registryServiceInfo.getHost(), registryServiceInfo.getPort()));
             addressGroups.add(new EquivalentAddressGroup(socketAddresses));
-            weightMap.put(registryServiceInfo.getHost() + ":" + registryServiceInfo.getPort(), registryServiceInfo.getWeight());
+            String weight = registryServiceInfo.getParameter(GrpcConstants.PARAMETER_WEIGHT);
+            weightMap.put(registryServiceInfo.getHost() + ":" + registryServiceInfo.getPort(), Integer.valueOf(weight));
         }
         builder.set(GrpcConstants.WEIGHT_LIST_KEY, weightMap);
         listener.onAddresses(addressGroups, builder.build());

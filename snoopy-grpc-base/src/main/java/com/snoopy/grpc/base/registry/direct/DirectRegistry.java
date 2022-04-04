@@ -33,15 +33,12 @@ public class DirectRegistry implements IRegistry {
             String[] serverAndPort = x.split(":");
             String server=serverAndPort[0];
             int port=Integer.parseInt(serverAndPort[1].split("\\[")[0]);
-            int weight = Integer.parseInt(serverAndPort[1].split("\\[").length>1
-                    ?serverAndPort[1].split("\\[")[1].replace("]", "")
-                    :"5");
             return new RegistryServiceInfo(serviceInfo.getNamespace(),
                     serviceInfo.getAlias(),
                     serviceInfo.getProtocol(),
                     server,
                     port,
-                    weight);
+                    serviceInfo.getParameters());
         }).collect(Collectors.toList());
         subscribeCallback.handle(serviceInfoList);
     }

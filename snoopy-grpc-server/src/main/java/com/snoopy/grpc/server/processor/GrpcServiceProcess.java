@@ -16,9 +16,9 @@ import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.NettyServerBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -80,20 +80,21 @@ public class GrpcServiceProcess implements IGrpcProcess {
             serverServiceDefinition = ServerInterceptors.interceptForward(serverServiceDefinition, privateInterceptors);
             builder.addService(serverServiceDefinition);
             //泛化调用时获取.proto文件setFileContainingSymbol可以使用服务别名alias而不使用<package>.<service>[.<method>]
-            if (!StringUtils.isEmpty(snoopyGrpcService.alias())) {
+            if (StringUtils.hasText(snoopyGrpcService.alias())) {
                 ServerServiceDefinition serverServiceDefinitionOfAlias = SnoopyServiceUtil.rename(serverServiceDefinition, snoopyGrpcService.alias());
                 builder.addService(serverServiceDefinitionOfAlias);
             }
             String namespace = snoopyGrpcService.namespace();
-            if (org.springframework.util.StringUtils.hasText(grpcServerProperties.getNamespace())) {
+            if (StringUtils.hasText(grpcServerProperties.getNamespace())) {
                 namespace = grpcServerProperties.getNamespace();
             }
+            namespace = StringUtils.hasText(namespace) ? namespace : GrpcConstants.DEFAULT_NAMESPACE;
             RegistryServiceInfo registryServiceInfo = new RegistryServiceInfo(namespace,
                     snoopyGrpcService.alias(),
                     grpcServerProperties.isUsePlaintext() ? GrpcConstants.PROTOCOL_HTTP2_PLAIN : GrpcConstants.PROTOCOL_HTTP2_SSL,
                     grpcServerProperties.getAddress(),
-                    grpcServerProperties.getPort(),
-                    grpcServerProperties.getWeight());
+                    grpcServerProperties.getPort());
+            registryServiceInfo.addParameter(GrpcConstants.PARAMETER_WEIGHT, String.valueOf(grpcServerProperties.getWeight()));
             registryServices.add(registryServiceInfo);
             registry.register(registryServiceInfo);
             LoggerBaseUtil.info(this, "[{}] Registry gRPC service successful: {}", registry.getClass().getSimpleName(), registryServiceInfo.getFullPath());
