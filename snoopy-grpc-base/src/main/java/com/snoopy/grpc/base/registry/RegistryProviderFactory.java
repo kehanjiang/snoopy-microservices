@@ -24,6 +24,9 @@ public class RegistryProviderFactory {
             registryProviderMap.put(registryProvider.registryType(), registryProvider);
         }
         currentRegistryProvider = registryProviderMap.get(registryProperties.getProtocol());
+        if (currentRegistryProvider == null) {
+            throw new RuntimeException("不支持 [" + registryProperties.getProtocol() + "] 注册中心类型，请检查是否已引入相关类型的注册中心支持包");
+        }
     }
 
     public IRegistryProvider newRegistryProviderInstance() {
