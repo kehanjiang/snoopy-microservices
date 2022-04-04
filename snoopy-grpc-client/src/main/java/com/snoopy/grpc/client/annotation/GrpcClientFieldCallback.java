@@ -1,11 +1,13 @@
 package com.snoopy.grpc.client.annotation;
 
 
+import com.snoopy.grpc.client.configure.GrpcClientProperties;
 import io.grpc.ClientInterceptor;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -15,13 +17,14 @@ import java.util.*;
  * @date :   2021/12/5  13:13
  */
 public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
+    private GrpcClientProperties grpcClientProperties;
     private ConfigurableListableBeanFactory configurableListableBeanFactory;
-
     private Object bean;
 
     protected static Set<ClientInterceptor> globalClientInterceptors = new HashSet<>();
 
-    public GrpcClientFieldCallback(ConfigurableListableBeanFactory cbf, Object bean) {
+    public GrpcClientFieldCallback(GrpcClientProperties grpcClientProperties, ConfigurableListableBeanFactory cbf, Object bean) {
+        this.grpcClientProperties = grpcClientProperties;
         this.configurableListableBeanFactory = cbf;
         this.bean = bean;
         Collection<String> beanNames = Arrays.asList(
@@ -49,6 +52,9 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
         String beanName = clazz.getName();
         StubType type = annotation.type();
         String namespace = annotation.namespace();
+        if (StringUtils.hasText(grpcClientProperties.getNamespace())) {
+            namespace = grpcClientProperties.getNamespace();
+        }
         String alias = annotation.alias();
 
         Object stubBeanInstance = configurableListableBeanFactory.containsBean(beanName)

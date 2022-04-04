@@ -2,6 +2,13 @@
   "properties": [
     {
       "sourceType": "",
+      "name": "snoopy.grpc.client.namespace",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "客户端默认namespace，优先级高于自定义的SnoopyGrpcClient的namespace"
+    },
+    {
+      "sourceType": "",
       "name": "snoopy.grpc.client.usePlaintext",
       "type": "java.lang.Boolean",
       "defaultValue": false,

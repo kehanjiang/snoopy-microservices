@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
  * @date :   2021/10/5  10:22
  */
 public class GrpcServerProperties {
+    private String namespace;
 
     private String address = "";
 
@@ -20,6 +21,14 @@ public class GrpcServerProperties {
     private boolean usePlaintext = false;
 
     private boolean useProtoReflection = true;
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 
     public String getAddress() {
         return (StringUtils.isEmpty(address)

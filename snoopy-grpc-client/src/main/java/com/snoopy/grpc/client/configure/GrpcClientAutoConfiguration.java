@@ -25,8 +25,8 @@ public class GrpcClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(GrpcClientBeanPostProcessor.class)
-    public GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(ConfigurableListableBeanFactory configurableListableBeanFactory) {
-        return new GrpcClientBeanPostProcessor(configurableListableBeanFactory);
+    public GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(GrpcClientProperties grpcClientProperties, ConfigurableListableBeanFactory configurableListableBeanFactory) {
+        return new GrpcClientBeanPostProcessor(grpcClientProperties, configurableListableBeanFactory);
     }
 
 }

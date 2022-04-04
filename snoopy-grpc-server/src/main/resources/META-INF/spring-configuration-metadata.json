@@ -2,6 +2,13 @@
   "properties": [
     {
       "sourceType": "",
+      "name": "snoopy.grpc.server.namespace",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "服务端默认namespace，优先级高于自定义的SnoopyGrpcService的namespace"
+    },
+    {
+      "sourceType": "",
       "name": "snoopy.grpc.server.address",
       "type": "java.lang.String",
       "defaultValue": "",

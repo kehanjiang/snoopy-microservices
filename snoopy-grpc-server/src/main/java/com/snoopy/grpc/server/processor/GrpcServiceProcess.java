@@ -41,7 +41,7 @@ public class GrpcServiceProcess implements IGrpcProcess {
 
     protected static Set<RegistryServiceInfo> registryServices = new HashSet<>();
 
-    protected static Set<ServerInterceptor> globalServerInterceptors=new HashSet<>();
+    protected static Set<ServerInterceptor> globalServerInterceptors = new HashSet<>();
 
     public GrpcServiceProcess(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -73,7 +73,7 @@ public class GrpcServiceProcess implements IGrpcProcess {
             for (Class<? extends ServerInterceptor> interceptorClass : snoopyGrpcService.interceptors()) {
                 privateInterceptors.add(loadPrivateInterceptorBean(interceptorClass));
             }
-            if(snoopyGrpcService.applyGlobalServerInterceptors()){
+            if (snoopyGrpcService.applyGlobalServerInterceptors()) {
                 privateInterceptors.addAll(globalServerInterceptors);
             }
 
@@ -81,11 +81,14 @@ public class GrpcServiceProcess implements IGrpcProcess {
             builder.addService(serverServiceDefinition);
             //泛化调用时获取.proto文件setFileContainingSymbol可以使用服务别名alias而不使用<package>.<service>[.<method>]
             if (!StringUtils.isEmpty(snoopyGrpcService.alias())) {
-                ServerServiceDefinition  serverServiceDefinitionOfAlias = SnoopyServiceUtil.rename(serverServiceDefinition, snoopyGrpcService.alias());
+                ServerServiceDefinition serverServiceDefinitionOfAlias = SnoopyServiceUtil.rename(serverServiceDefinition, snoopyGrpcService.alias());
                 builder.addService(serverServiceDefinitionOfAlias);
             }
-
-            RegistryServiceInfo registryServiceInfo = new RegistryServiceInfo(snoopyGrpcService.namespace(),
+            String namespace = snoopyGrpcService.namespace();
+            if (org.springframework.util.StringUtils.hasText(grpcServerProperties.getNamespace())) {
+                namespace = grpcServerProperties.getNamespace();
+            }
+            RegistryServiceInfo registryServiceInfo = new RegistryServiceInfo(namespace,
                     snoopyGrpcService.alias(),
                     grpcServerProperties.isUsePlaintext() ? GrpcConstants.PROTOCOL_HTTP2_PLAIN : GrpcConstants.PROTOCOL_HTTP2_SSL,
                     grpcServerProperties.getAddress(),
