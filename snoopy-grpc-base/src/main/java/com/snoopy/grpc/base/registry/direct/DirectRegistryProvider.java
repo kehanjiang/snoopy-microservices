@@ -10,14 +10,9 @@ import com.snoopy.grpc.base.registry.IRegistryProvider;
  */
 public class DirectRegistryProvider implements IRegistryProvider {
     public static final String REGISTRY_PROTOCOL_DIRECT = "direct";
-    private GrpcRegistryProperties grpcRegistryProperties;
-
-    public DirectRegistryProvider(GrpcRegistryProperties grpcRegistryProperties) {
-        this.grpcRegistryProperties = grpcRegistryProperties;
-    }
 
     @Override
-    public IRegistry newRegistryInstance() {
+    public IRegistry newRegistryInstance(GrpcRegistryProperties grpcRegistryProperties) {
         return new DirectRegistry(grpcRegistryProperties);
     }
 

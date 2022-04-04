@@ -1,6 +1,7 @@
 package com.snoopy.grpc.server.processor;
 
 import com.google.common.collect.Lists;
+import com.snoopy.grpc.base.configure.GrpcRegistryProperties;
 import com.snoopy.grpc.base.constans.GrpcConstants;
 import com.snoopy.grpc.base.registry.IRegistry;
 import com.snoopy.grpc.base.registry.RegistryProviderFactory;
@@ -46,7 +47,8 @@ public class GrpcServiceProcess implements IGrpcProcess {
         this.applicationContext = applicationContext;
         RegistryProviderFactory registryProviderFactory = applicationContext.getBean(RegistryProviderFactory.class);
         this.grpcServerProperties = applicationContext.getBean(GrpcServerProperties.class);
-        this.registry = registryProviderFactory.newRegistryProviderInstance().newRegistryInstance();
+        GrpcRegistryProperties grpcRegistryProperties = applicationContext.getBean(GrpcRegistryProperties.class);
+        this.registry = registryProviderFactory.newRegistryProviderInstance().newRegistryInstance(grpcRegistryProperties);
 
         Collection<String> beanNames = Arrays.asList(
                 applicationContext.getBeanNamesForAnnotation(SnoopyGrpcGlobalServerInterceptor.class)

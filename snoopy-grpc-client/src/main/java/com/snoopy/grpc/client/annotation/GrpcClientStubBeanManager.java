@@ -101,7 +101,7 @@ public class GrpcClientStubBeanManager {
                 NetUtil.getLocalIpAddress(),
                 SocketUtils.findAvailableTcpPort(10000, 60000), -1);
         IRegistry registry = configurableListableBeanFactory.getBean(RegistryProviderFactory.class).
-                newRegistryProviderInstance().newRegistryInstance();
+                newRegistryProviderInstance().newRegistryInstance(grpcRegistryProperties);
 
         //注册自定义服务均衡策略
         LoadBalancerRegistry.getDefaultRegistry().register(new WeightRandomLoadBalancerProvider());

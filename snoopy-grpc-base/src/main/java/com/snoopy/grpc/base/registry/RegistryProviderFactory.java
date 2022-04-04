@@ -18,9 +18,9 @@ public class RegistryProviderFactory {
     public RegistryProviderFactory(GrpcRegistryProperties registryProperties) {
         Map<String, IRegistryProvider> registryProviderMap = new HashMap<>();
         ServiceLoader<IRegistryProvider> serviceLoader = ServiceLoader.load(IRegistryProvider.class);
-        Iterator<IRegistryProvider> iterable = serviceLoader.iterator();
-        while (iterable.hasNext()) {
-            IRegistryProvider registryProvider = iterable.next();
+        Iterator<IRegistryProvider> iterator = serviceLoader.iterator();
+        while (iterator.hasNext()) {
+            IRegistryProvider registryProvider = iterator.next();
             registryProviderMap.put(registryProvider.registryType(), registryProvider);
         }
         currentRegistryProvider = registryProviderMap.get(registryProperties.getProtocol());
