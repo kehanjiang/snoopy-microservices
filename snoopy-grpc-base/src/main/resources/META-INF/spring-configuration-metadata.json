@@ -27,6 +27,12 @@
     },
     {
       "sourceType": "",
+      "name": "snoopy.grpc.registry.extra",
+      "type": "java.util.HashMap",
+      "description": "注册中心额外配置参数"
+    },
+    {
+      "sourceType": "",
       "name": "snoopy.grpc.security.authority",
       "type": "java.lang.String",
       "description": " 判断认证授权主体，证书DNS名 "

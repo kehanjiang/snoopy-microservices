@@ -1,6 +1,11 @@
 package com.snoopy.grpc.base.configure;
 
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author :   kehanjiang
  * @date :   2021/10/5  10:22
@@ -14,6 +19,9 @@ public class GrpcRegistryProperties {
     private String username = "";
 
     private String password = "";
+
+    private Map<String, Object> extra = new HashMap<>();
+
 
     public String getProtocol() {
         return protocol;
@@ -46,4 +54,27 @@ public class GrpcRegistryProperties {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Map<String, Object> getExtra() {
+        return extra;
+    }
+
+    public void setExtra(Map<String, Object> extra) {
+        this.extra = extra;
+    }
+
+    public Object getExtra(String name) {
+        return this.extra.get(name);
+    }
+
+    public void setExtra(String name, Object value) {
+        if (!StringUtils.isEmpty(name) && value != null && !StringUtils.isEmpty(String.valueOf(value))) {
+            this.extra.put(name, value);
+        }
+    }
+
+    public boolean hasExtra(String name) {
+        return getExtra(name) != null && StringUtils.isNotBlank(String.valueOf(getExtra(name)));
+    }
+
 }
