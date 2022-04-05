@@ -20,7 +20,7 @@ public class GrpcRegistryProperties {
 
     private String password = "";
 
-    private Map<String, Object> extra = new HashMap<>();
+    private Map<String, String> extra = new HashMap<>();
 
 
     public String getProtocol() {
@@ -55,26 +55,26 @@ public class GrpcRegistryProperties {
         this.password = password;
     }
 
-    public Map<String, Object> getExtra() {
+    public Map<String, String> getExtra() {
         return extra;
     }
 
-    public void setExtra(Map<String, Object> extra) {
+    public void setExtra(Map<String, String> extra) {
         this.extra = extra;
     }
 
-    public Object getExtra(String name) {
+    public String getExtra(String name) {
         return this.extra.get(name);
     }
 
-    public void setExtra(String name, Object value) {
-        if (!StringUtils.isEmpty(name) && value != null && !StringUtils.isEmpty(String.valueOf(value))) {
+    public void setExtra(String name, String value) {
+        if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(value)) {
             this.extra.put(name, value);
         }
     }
 
     public boolean hasExtra(String name) {
-        return getExtra(name) != null && StringUtils.isNotBlank(String.valueOf(getExtra(name)));
+        return StringUtils.isNotEmpty(getExtra(name));
     }
 
 }
