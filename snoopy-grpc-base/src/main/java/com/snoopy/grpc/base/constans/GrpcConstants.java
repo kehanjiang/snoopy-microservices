@@ -45,6 +45,7 @@ public final class GrpcConstants {
      */
     public static final Pattern QUERY_PARAM_PATTERN = Pattern.compile("\\s*[&]+\\s*");
     public static final String EQUAL_SIGN_SEPERATOR = "=";
+    public static final Pattern ADDRESS_SPLIT_PATTERN = Pattern.compile("\\s*[|;,]+\\s*");
 
     /**
      * 编码格式

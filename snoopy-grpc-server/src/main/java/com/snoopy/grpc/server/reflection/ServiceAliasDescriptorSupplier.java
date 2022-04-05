@@ -2,8 +2,7 @@ package com.snoopy.grpc.server.reflection;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.snoopy.grpc.base.utils.LoggerBaseUtil;
 
 /**
  *
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceAliasDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier,
         io.grpc.protobuf.ProtoServiceDescriptorSupplier {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceAliasDescriptorSupplier.class);
 
     private String fullSvcAlias;
     private String fullSvcName;
@@ -29,8 +27,9 @@ public class ServiceAliasDescriptorSupplier implements io.grpc.protobuf.ProtoFil
     @Override
     public Descriptors.ServiceDescriptor getServiceDescriptor() {
         Descriptors.FileDescriptor descriptor = getFileDescriptor();
-        if (descriptor != null)
+        if (descriptor != null){
             return descriptor.findServiceByName(ProtoMethodName.extractServiceName(fullSvcAlias));
+        }
         return null;
     }
 
@@ -63,7 +62,7 @@ public class ServiceAliasDescriptorSupplier implements io.grpc.protobuf.ProtoFil
                         new Descriptors.FileDescriptor[]{fileDescriptor});
             }
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            LoggerBaseUtil.error(this,e.getMessage(),e);
         }
         return aliasFileDescriptor;
     }
