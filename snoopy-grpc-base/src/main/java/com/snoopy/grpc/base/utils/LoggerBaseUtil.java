@@ -17,6 +17,14 @@ public class LoggerBaseUtil {
         LoggerFactory.getLogger(object.getClass()).info(format, arguments);
     }
 
+    public static void warn(Object object, String msg) {
+        LoggerFactory.getLogger(object.getClass()).warn(msg);
+    }
+
+    public static void warn(Object object, String format, Object... arguments) {
+        LoggerFactory.getLogger(object.getClass()).warn(format, arguments);
+    }
+
     public static void debug(Object object, String msg) {
         LoggerFactory.getLogger(object.getClass()).debug(msg);
     }

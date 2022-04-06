@@ -77,4 +77,35 @@ public class GrpcRegistryProperties {
         return StringUtils.isNotEmpty(getExtra(name));
     }
 
+    public String getExtra(String name, String defaultValue) {
+        String value = this.getExtra(name);
+        return value == null ? defaultValue : value;
+    }
+
+    public Boolean getBooleanExtra(String name, boolean defaultValue) {
+        String value = extra.get(name);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return Boolean.parseBoolean(value);
+        }
+    }
+
+    public Integer getIntExtra(String name, int defaultValue) {
+        String value = extra.get(name);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return Integer.parseInt(value);
+        }
+    }
+
+    public Long getLongExtra(String name, long defaultValue) {
+        String value = extra.get(name);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return Long.parseLong(value);
+        }
+    }
 }

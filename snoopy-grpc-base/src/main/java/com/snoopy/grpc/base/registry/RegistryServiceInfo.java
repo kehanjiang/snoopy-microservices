@@ -127,6 +127,38 @@ public class RegistryServiceInfo {
         return (String) this.parameters.get(name);
     }
 
+    public String getParameter(String name, String defaultValue) {
+        String value = this.getParameter(name);
+        return value == null ? defaultValue : value;
+    }
+
+    public Boolean getBooleanParameter(String name, boolean defaultValue) {
+        String value = parameters.get(name);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return Boolean.parseBoolean(value);
+        }
+    }
+
+    public Integer getIntParameter(String name, int defaultValue) {
+        String value = parameters.get(name);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return Integer.parseInt(value);
+        }
+    }
+
+    public Long getLongParameter(String name, long defaultValue) {
+        String value = parameters.get(name);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return Long.parseLong(value);
+        }
+    }
+
     public Map<String, String> getParameters() {
         return parameters;
     }
@@ -165,7 +197,7 @@ public class RegistryServiceInfo {
             while (it.hasNext()) {
                 Map.Entry<String, String> entry = (Map.Entry) it.next();
                 String name = entry.getKey();
-                String value =  entry.getValue();
+                String value = entry.getValue();
                 builder.append(urlEncode(name));
                 if (value != null) {
                     builder.append('=');
