@@ -1,8 +1,10 @@
 package com.snoopy.grpc.base.configure;
 
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,38 +76,35 @@ public class GrpcRegistryProperties {
     }
 
     public boolean hasExtra(String name) {
-        return StringUtils.isNotEmpty(getExtra(name));
+        return StringUtils.hasText(getExtra(name));
     }
 
     public String getExtra(String name, String defaultValue) {
         String value = this.getExtra(name);
-        return value == null ? defaultValue : value;
+        return StringUtils.hasText(value) ? value : defaultValue;
     }
 
     public Boolean getBooleanExtra(String name, boolean defaultValue) {
         String value = extra.get(name);
-        if (value == null) {
-            return defaultValue;
-        } else {
-            return Boolean.parseBoolean(value);
-        }
+        return StringUtils.hasText(value) ? Boolean.parseBoolean(value) : defaultValue;
     }
 
     public Integer getIntExtra(String name, int defaultValue) {
         String value = extra.get(name);
-        if (value == null) {
-            return defaultValue;
-        } else {
-            return Integer.parseInt(value);
-        }
+        return StringUtils.hasText(value) ? Integer.parseInt(value) : defaultValue;
     }
 
     public Long getLongExtra(String name, long defaultValue) {
         String value = extra.get(name);
-        if (value == null) {
-            return defaultValue;
-        } else {
-            return Long.parseLong(value);
+        return StringUtils.hasText(value) ? Long.parseLong(value) : defaultValue;
+    }
+
+    public File getFileExtra(String name) {
+        try {
+            return ResourceUtils.getFile(name);
+        } catch (Exception e) {
+            return null;
         }
     }
+
 }

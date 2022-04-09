@@ -6,10 +6,11 @@ import com.snoopy.grpc.base.utils.LoggerBaseUtil;
 import com.snoopy.grpc.server.annotation.SnoopyGrpcGlobalServerInterceptor;
 import com.snoopy.grpc.server.configure.GrpcServerProperties;
 import io.grpc.*;
-import org.springframework.core.io.Resource;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
+import java.io.File;
+import java.io.FileInputStream;
 import java.security.cert.*;
 import java.util.Optional;
 
@@ -38,14 +39,14 @@ public class CertVerifyInterceptor implements ServerInterceptor {
                 errorStatus = Status.UNAUTHENTICATED.withDescription("Not ssl/tls session");
             } else {
                 Boolean sessionVerified = Optional.ofNullable((Boolean) sslSession.getValue(SNOOPY_CLIENT_VERIFIED)).orElse(false);
-                Resource crlFile = grpcSecurityProperties.getCa().getCrlFile();
+                File crlFile = grpcSecurityProperties.getCa().getCrlFile();
                 if (crlFile != null && crlFile.exists() && !sessionVerified) {
                     try {
                         Certificate[] certificates = sslSession.getPeerCertificates();
                         X509Certificate certificate = (X509Certificate) certificates[0];
                         try {
                             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                            X509CRL x509CRL = (X509CRL) cf.generateCRL(crlFile.getInputStream());
+                            X509CRL x509CRL = (X509CRL) cf.generateCRL(new FileInputStream(crlFile));
                             X509CRLEntry revokedCertificate = x509CRL.getRevokedCertificate(certificate);
                             if (revokedCertificate != null) {
                                 errorStatus = Status.PERMISSION_DENIED.withDescription("Permission denied");

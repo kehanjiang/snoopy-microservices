@@ -2,8 +2,9 @@ package com.snoopy.grpc.base.configure;
 
 
 import io.netty.handler.ssl.ClientAuth;
-import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,47 +75,63 @@ public class GrpcSecurityProperties {
     }
 
     public static class Ca {
-        private Resource certFile = null;
+        private String certFile = null;
 
-        private Resource crlFile = null;
+        private String crlFile = null;
 
-        public Resource getCertFile() {
-            return certFile;
+        public File getCertFile() {
+            try {
+                return ResourceUtils.getFile(certFile);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
-        public void setCertFile(Resource certFile) {
+        public void setCertFile(String certFile) {
             this.certFile = certFile;
         }
 
-        public Resource getCrlFile() {
-            return crlFile;
+        public File getCrlFile() {
+            try {
+                return ResourceUtils.getFile(crlFile);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
-        public void setCrlFile(Resource crlFile) {
+        public void setCrlFile(String crlFile) {
             this.crlFile = crlFile;
         }
     }
 
     public static class Client {
-        private Resource certFile = null;
+        private String certFile = null;
 
-        private Resource keyFile = null;
+        private String keyFile = null;
 
         private String keyPassword = null;
 
-        public Resource getCertFile() {
-            return certFile;
+        public File getCertFile() {
+            try {
+                return ResourceUtils.getFile(certFile);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
-        public void setCertFile(Resource certFile) {
+        public void setCertFile(String certFile) {
             this.certFile = certFile;
         }
 
-        public Resource getKeyFile() {
-            return keyFile;
+        public File getKeyFile() {
+            try {
+                return ResourceUtils.getFile(keyFile);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
-        public void setKeyFile(Resource keyFile) {
+        public void setKeyFile(String keyFile) {
             this.keyFile = keyFile;
         }
 
@@ -128,27 +145,35 @@ public class GrpcSecurityProperties {
     }
 
     public static class Server {
-        private Resource certFile = null;
+        private String certFile = null;
 
-        private Resource keyFile = null;
+        private String keyFile = null;
 
         private String keyPassword = null;
 
         private ClientAuth clientAuth = ClientAuth.REQUIRE;
 
-        public Resource getCertFile() {
-            return certFile;
+        public File getCertFile() {
+            try {
+                return ResourceUtils.getFile(certFile);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
-        public void setCertFile(Resource certFile) {
+        public void setCertFile(String certFile) {
             this.certFile = certFile;
         }
 
-        public Resource getKeyFile() {
-            return keyFile;
+        public File getKeyFile() {
+            try {
+                return ResourceUtils.getFile(keyFile);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
-        public void setKeyFile(Resource keyFile) {
+        public void setKeyFile(String keyFile) {
             this.keyFile = keyFile;
         }
 

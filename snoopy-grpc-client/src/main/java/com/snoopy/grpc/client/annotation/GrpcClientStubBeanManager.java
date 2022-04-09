@@ -20,10 +20,11 @@ import io.netty.handler.ssl.SslContextBuilder;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.util.SocketUtils;
 
 import javax.net.ssl.SSLException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -53,7 +54,7 @@ public class GrpcClientStubBeanManager {
             StubType type,
             String namespace,
             String alias) {
-        DefaultListableBeanFactory springFactory =(DefaultListableBeanFactory)configurableListableBeanFactory;
+        DefaultListableBeanFactory springFactory = (DefaultListableBeanFactory) configurableListableBeanFactory;
         try {
             //取得内部类
             String serviceClassName = stubClass.getCanonicalName()
@@ -77,7 +78,7 @@ public class GrpcClientStubBeanManager {
                     throw new RuntimeException("StubTyp is unSupport!");
             }
             //注册bean
-            springFactory.registerSingleton(beanName,newStubClass);
+            springFactory.registerSingleton(beanName, newStubClass);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -100,7 +101,7 @@ public class GrpcClientStubBeanManager {
                 grpcClientProperties.isUsePlaintext() ? GrpcConstants.PROTOCOL_HTTP2_PLAIN : GrpcConstants.PROTOCOL_HTTP2_SSL,
                 NetUtil.getLocalIpAddress(),
                 SocketUtils.findAvailableTcpPort(10000, 60000));
-        registryServiceInfo.addParameter(GrpcConstants.PARAMETER_WEIGHT,String.valueOf(GrpcConstants.DEFAULT_WEIGHT));
+        registryServiceInfo.addParameter(GrpcConstants.PARAMETER_WEIGHT, String.valueOf(GrpcConstants.DEFAULT_WEIGHT));
         IRegistry registry = configurableListableBeanFactory.getBean(RegistryProviderFactory.class).
                 newRegistryProviderInstance().newRegistryInstance(grpcRegistryProperties);
 
@@ -127,20 +128,20 @@ public class GrpcClientStubBeanManager {
             SslContextBuilder sslContextBuilder;
             GrpcSecurityProperties.Client client = grpcSecurityProperties.getClient();
             requireNonNull(client, "security client not configured");
-            Resource certFile = client.getCertFile();
+            File certFile = client.getCertFile();
             requireNonNull(certFile, "certFile not configured");
-            Resource keyFile = client.getKeyFile();
+            File keyFile = client.getKeyFile();
             requireNonNull(keyFile, "keyFile not configured");
-            try (InputStream certFileStream = certFile.getInputStream();
-                 InputStream keyFileStream = keyFile.getInputStream()) {
+            try (InputStream certFileStream = new FileInputStream(certFile);
+                 InputStream keyFileStream = new FileInputStream(keyFile)) {
                 sslContextBuilder = GrpcSslContexts.forClient().keyManager(certFileStream, keyFileStream, client.getKeyPassword());
             } catch (IOException | RuntimeException e) {
                 throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
             }
 
-            Resource trustCertCollection = grpcSecurityProperties.getCa().getCertFile();
+            File trustCertCollection = grpcSecurityProperties.getCa().getCertFile();
             if (trustCertCollection != null) {
-                try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
+                try (InputStream trustCertCollectionStream = new FileInputStream(trustCertCollection)) {
                     sslContextBuilder.trustManager(trustCertCollectionStream);
                 } catch (IOException | RuntimeException e) {
                     throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);

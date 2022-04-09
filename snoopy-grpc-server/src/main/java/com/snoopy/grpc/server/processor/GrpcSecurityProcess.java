@@ -6,9 +6,10 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
-import org.springframework.core.io.Resource;
 
 import javax.net.ssl.SSLException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -38,12 +39,12 @@ public class GrpcSecurityProcess implements IGrpcProcess {
             SslContextBuilder sslContextBuilder;
             GrpcSecurityProperties.Server server = grpcSecurityProperties.getServer();
             requireNonNull(server, "security server not configured");
-            Resource certFile = server.getCertFile();
+            File certFile = server.getCertFile();
             requireNonNull(certFile, "certFile not configured");
-            Resource keyFile = server.getKeyFile();
+            File keyFile = server.getKeyFile();
             requireNonNull(keyFile, "keyFile not configured");
-            try (InputStream certFileStream = certFile.getInputStream();
-                 InputStream keyFileStream = keyFile.getInputStream()) {
+            try (InputStream certFileStream = new FileInputStream(certFile);
+                 InputStream keyFileStream = new FileInputStream(keyFile)) {
                 sslContextBuilder = GrpcSslContexts.forServer(certFileStream, keyFileStream,
                         server.getKeyPassword());
             } catch (IOException | RuntimeException e) {
@@ -51,9 +52,9 @@ public class GrpcSecurityProcess implements IGrpcProcess {
             }
             if (server.getClientAuth() != ClientAuth.NONE) {
                 sslContextBuilder.clientAuth(of(server.getClientAuth()));
-                Resource trustCertCollection = grpcSecurityProperties.getCa().getCertFile();
+                File trustCertCollection = grpcSecurityProperties.getCa().getCertFile();
                 if (trustCertCollection != null) {
-                    try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
+                    try (InputStream trustCertCollectionStream =new FileInputStream(trustCertCollection)) {
                         sslContextBuilder.trustManager(trustCertCollectionStream);
                     } catch (IOException | RuntimeException e) {
                         throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);
