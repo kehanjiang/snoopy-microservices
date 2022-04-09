@@ -1,7 +1,7 @@
 ext {
-    springBootVersion = "2.3.7.RELEASE"
-    grpcVersion = "1.25.0"
-    boringsslVersion = "2.0.26.Final"
+    springBootVersion = '2.3.12.RELEASE'
+    grpcVersion =  "1.45.1"
+    boringsslVersion = '2.0.51.Final'
 
     library = [
             //grpc,  netty

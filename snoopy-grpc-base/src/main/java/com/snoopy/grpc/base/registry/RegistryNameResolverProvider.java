@@ -67,11 +67,11 @@ public class RegistryNameResolverProvider extends NameResolverProvider {
      * 服务发现类
      *
      * @param targetUri
-     * @param params
+     * @param args
      * @return
      */
     @Override
-    public NameResolver newNameResolver(URI targetUri, Attributes params) {
+    public NameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
         return new RegistryNameResolver(grpcSecurityProperties, registryServiceInfo, registry);
     }
 }
