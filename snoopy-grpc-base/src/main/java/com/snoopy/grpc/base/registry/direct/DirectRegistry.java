@@ -4,10 +4,12 @@ import com.snoopy.grpc.base.configure.GrpcRegistryProperties;
 import com.snoopy.grpc.base.registry.IRegistry;
 import com.snoopy.grpc.base.registry.ISubscribeCallback;
 import com.snoopy.grpc.base.registry.RegistryServiceInfo;
+import com.snoopy.grpc.base.registry.ShutDownHookManager;
 import com.snoopy.grpc.base.utils.NetUtil;
 import org.springframework.util.SocketUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,8 +24,9 @@ public class DirectRegistry implements IRegistry {
 
     public DirectRegistry(GrpcRegistryProperties grpcRegistryProperties) {
         String address = grpcRegistryProperties.getAddress();
-        address = StringUtils.isEmpty(address) ? (NetUtil.LOOPBACK_ADDRESS + ":"+ SocketUtils.findAvailableTcpPort(10000,60000)+"[5]") : address;
+        address = StringUtils.isEmpty(address) ? (NetUtil.LOOPBACK_ADDRESS + ":" + SocketUtils.findAvailableTcpPort(10000, 60000) + "[5]") : address;
         this.registryAddress = address.split(",");
+        ShutDownHookManager.registerShutdownHook(this);
     }
 
 
@@ -31,8 +34,8 @@ public class DirectRegistry implements IRegistry {
     public void subscribe(RegistryServiceInfo serviceInfo, ISubscribeCallback subscribeCallback) {
         List<RegistryServiceInfo> serviceInfoList = Arrays.stream(registryAddress).map(x -> {
             String[] serverAndPort = x.split(":");
-            String server=serverAndPort[0];
-            int port=Integer.parseInt(serverAndPort[1].split("\\[")[0]);
+            String server = serverAndPort[0];
+            int port = Integer.parseInt(serverAndPort[1].split("\\[")[0]);
             return new RegistryServiceInfo(serviceInfo.getNamespace(),
                     serviceInfo.getAlias(),
                     serviceInfo.getProtocol(),
@@ -58,4 +61,8 @@ public class DirectRegistry implements IRegistry {
 
     }
 
+    @Override
+    public void close() throws IOException {
+
+    }
 }

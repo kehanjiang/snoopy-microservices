@@ -1,11 +1,13 @@
 package com.snoopy.grpc.base.registry;
 
 
+import java.io.Closeable;
+
 /**
  * @author :   kehanjiang
  * @date :   2021/11/29  16:03
  */
-public interface IRegistry {
+public interface IRegistry extends Closeable {
     /**
      * 注册服务
      *
