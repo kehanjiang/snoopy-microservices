@@ -8,18 +8,16 @@ dependencies {
     compile library.grpc_services
     compile library.netty_tcnative_boringssl_static
 
-    //zookeeper
-    compile(library.zookeeper) {
-        exclude module: 'log4j'
-    }
-    compile library.zkclient
-
     //apache commons
     compile library.commons_lang
     compile library.commons_io
+
+    //gson
+    compile library.gson
 
     //springboot
     compile library.spring_boot_starter
     compile library.spring_boot_configuration_processor
     testCompile  library.spring_boot_starter_test
+
 }

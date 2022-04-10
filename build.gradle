@@ -2,8 +2,8 @@ description = 'snoopy microservices system'
 
 allprojects {
 	group 'com.snoopy'
-//	version '1.0.0-RC2'
-	version '1.0.0-SNAPSHOT'
+	version '1.0.0-RC2'
+//	version '1.0.0-SNAPSHOT'
 	apply from: "${rootProject.projectDir}/libraries.gradle"
 }
 subprojects {

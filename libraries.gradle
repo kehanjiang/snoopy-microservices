@@ -1,8 +1,8 @@
 ext {
     springBootVersion = '2.3.12.RELEASE'
-    grpcVersion =  "1.45.1"
+    grpcVersion = "1.45.1"
     boringsslVersion = '2.0.51.Final'
-
+    gsonVersion = '2.8.6'
     library = [
             //grpc,  netty
             grpc_netty                         : "io.grpc:grpc-netty:${grpcVersion}",
@@ -20,8 +20,7 @@ ext {
             commons_lang                       : "org.apache.commons:commons-lang3:3.5",
             commons_io                         : "commons-io:commons-io:2.5",
 
-            //zookeeper
-            zookeeper                          : "org.apache.zookeeper:zookeeper:3.4.10",
-            zkclient                           : "com.101tec:zkclient:0.10",
+            //other
+            gson                               : "com.google.code.gson:gson:${gsonVersion}",
     ]
 }
