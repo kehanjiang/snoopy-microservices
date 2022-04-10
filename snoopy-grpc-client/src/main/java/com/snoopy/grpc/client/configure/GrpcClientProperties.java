@@ -1,13 +1,14 @@
 package com.snoopy.grpc.client.configure;
 
 
+import com.snoopy.grpc.base.configure.GrpcBaseProperties;
 import com.snoopy.grpc.base.constans.GrpcConstants;
 
 /**
  * @author :   kehanjiang
  * @date :   2021/10/5  10:22
  */
-public class GrpcClientProperties {
+public class GrpcClientProperties extends GrpcBaseProperties {
     private String namespace;
 
     private boolean usePlaintext = false;

@@ -12,7 +12,7 @@ import java.util.Map;
  * @author :   kehanjiang
  * @date :   2021/10/5  10:22
  */
-public class GrpcRegistryProperties {
+public class GrpcRegistryProperties extends GrpcBaseProperties{
 
     private String protocol = "direct";
 

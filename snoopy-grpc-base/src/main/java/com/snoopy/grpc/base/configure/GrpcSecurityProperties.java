@@ -13,7 +13,7 @@ import java.util.List;
  * @author :   kehanjiang
  * @date :   2021/10/5  10:22
  */
-public class GrpcSecurityProperties {
+public class GrpcSecurityProperties extends GrpcBaseProperties {
     private String authority = null;
 
     private Ca ca = null;

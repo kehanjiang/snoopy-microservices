@@ -1,6 +1,7 @@
 package com.snoopy.grpc.server.configure;
 
 
+import com.snoopy.grpc.base.configure.GrpcBaseProperties;
 import com.snoopy.grpc.base.constans.GrpcConstants;
 import com.snoopy.grpc.base.utils.NetUtil;
 import org.springframework.util.SocketUtils;
@@ -10,7 +11,7 @@ import org.springframework.util.StringUtils;
  * @author :   kehanjiang
  * @date :   2021/10/5  10:22
  */
-public class GrpcServerProperties {
+public class GrpcServerProperties extends GrpcBaseProperties {
     private String namespace;
 
     private String address = "";
