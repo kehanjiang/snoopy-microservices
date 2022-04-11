@@ -6,6 +6,7 @@ import com.snoopy.grpc.client.annotation.GrpcClientBeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class GrpcClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(GrpcClientBeanPostProcessor.class)
+    @ConditionalOnProperty(value = "snoopy.grpc.client.autoStartup", havingValue = "true", matchIfMissing = true)
     public GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(GrpcClientProperties grpcClientProperties, ConfigurableListableBeanFactory configurableListableBeanFactory) {
         return new GrpcClientBeanPostProcessor(grpcClientProperties, configurableListableBeanFactory);
     }

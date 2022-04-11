@@ -2,6 +2,13 @@
   "properties": [
     {
       "sourceType": "",
+      "name": "snoopy.grpc.server.autoStartup",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "服务端是否自动启动，默认为true"
+    },
+    {
+      "sourceType": "",
       "name": "snoopy.grpc.server.namespace",
       "type": "java.lang.String",
       "defaultValue": "",
@@ -43,6 +50,19 @@
     }
   ],
   "hints": [
+    {
+      "name": "snoopy.grpc.server.autoStartup",
+      "values": [
+        {
+          "value": true,
+          "description": ""
+        },
+        {
+          "value": false,
+          "description": ""
+        }
+      ]
+    },
     {
       "name": "snoopy.grpc.server.usePlaintext",
       "values": [

@@ -9,6 +9,7 @@ import com.snoopy.grpc.server.factory.NettyServerFactory;
 import com.snoopy.grpc.server.processor.*;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -67,6 +68,7 @@ public class GrpcServerAutoConfiguration {
 
     @Bean
     @ConditionalOnBean({NettyServerFactory.class})
+    @ConditionalOnProperty(value = "snoopy.grpc.server.autoStartup", havingValue = "true", matchIfMissing = true)
     public GrpcServerLifecycle grpcServerLifecycle(NettyServerFactory nettyServerFactory) {
         return new GrpcServerLifecycle(nettyServerFactory);
     }
