@@ -1,45 +1,28 @@
 package com.snoopy.grpc.client.balance.weight;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.grpc.ConnectivityState.CONNECTING;
-import static io.grpc.ConnectivityState.IDLE;
-import static io.grpc.ConnectivityState.READY;
-import static io.grpc.ConnectivityState.SHUTDOWN;
-import static io.grpc.ConnectivityState.TRANSIENT_FAILURE;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.snoopy.grpc.base.constans.GrpcConstants;
-import io.grpc.Attributes;
-import io.grpc.ConnectivityState;
-import io.grpc.ConnectivityStateInfo;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.LoadBalancer;
-import io.grpc.NameResolver;
-import io.grpc.Status;
+import io.grpc.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import javax.annotation.Nonnull;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.grpc.ConnectivityState.*;
+import static io.grpc.ConnectivityState.READY;
 
 /**
- * A {@link LoadBalancer} that provides round-robin load-balancing over the {@link
- * EquivalentAddressGroup}s from the {@link NameResolver}.
+ * @author :   kehanjiang
+ * @date :   2022/4/16  20:06
  */
 public class WeightRandomLoadBalancer extends LoadBalancer {
     @VisibleForTesting
-    static final Attributes.Key<Ref<ConnectivityStateInfo>> STATE_INFO =
+    static final Attributes.Key<WeightRandomLoadBalancer.Ref<ConnectivityStateInfo>> STATE_INFO =
             Attributes.Key.create("state-info");
 
     private final Helper helper;
@@ -48,7 +31,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
     private final Random random;
 
     private ConnectivityState currentState;
-    private WeigthRandomPicker currentPicker = new EmptyPicker(EMPTY_OK);
+    private WeightRandomLoadBalancer.WeightRandomPicker currentPicker = new WeightRandomLoadBalancer.EmptyPicker(EMPTY_OK);
 
     WeightRandomLoadBalancer(Helper helper) {
         this.helper = checkNotNull(helper, "helper");
@@ -58,21 +41,23 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
     @Override
     public void handleResolvedAddresses(ResolvedAddresses resolvedAddresses) {
         List<EquivalentAddressGroup> servers = resolvedAddresses.getAddresses();
-        Attributes attributes = resolvedAddresses.getAttributes();
-//        Set<EquivalentAddressGroup> currentAddrs = subchannels.keySet();
+        Set<EquivalentAddressGroup> currentAddrs = subchannels.keySet();
         Map<EquivalentAddressGroup, EquivalentAddressGroup> latestAddrs = stripAttrs(servers);
-//        Set<EquivalentAddressGroup> removedAddrs = setsDifference(currentAddrs, latestAddrs.keySet());
+        Set<EquivalentAddressGroup> removedAddrs = setsDifference(currentAddrs, latestAddrs.keySet());
+
+        Attributes attributes = resolvedAddresses.getAttributes();
+        Map<String, Integer> weightMap = attributes.get(GrpcConstants.WEIGHT_LIST_KEY);
 
         for (Map.Entry<EquivalentAddressGroup, EquivalentAddressGroup> latestEntry :
                 latestAddrs.entrySet()) {
             EquivalentAddressGroup strippedAddressGroup = latestEntry.getKey();
             EquivalentAddressGroup originalAddressGroup = latestEntry.getValue();
-//            Subchannel existingSubchannel = subchannels.get(strippedAddressGroup);
-//            if (existingSubchannel != null) {
-            // EAG's Attributes may have changed.
-//                existingSubchannel.updateAddresses(Collections.singletonList(originalAddressGroup));
-//                continue;
-//            }
+            Subchannel existingSubchannel = subchannels.get(strippedAddressGroup);
+            if (existingSubchannel != null) {
+                // EAG's Attributes may have changed.
+                existingSubchannel.updateAddresses(Collections.singletonList(originalAddressGroup));
+                continue;
+            }
             // Create new subchannels for new addresses.
 
             // NB(lukaszx0): we don't merge `attributes` with `subchannelAttr` because subchannel
@@ -83,9 +68,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
                     // after creation but since we can mutate the values we leverage that and set
                     // AtomicReference which will allow mutating state info for given channel.
                     .set(STATE_INFO,
-                            new Ref<>(ConnectivityStateInfo.forNonError(IDLE)));
-
-            subchannelAttrs.set(GrpcConstants.WEIGHT_LIST_KEY, attributes.get(GrpcConstants.WEIGHT_LIST_KEY));
+                            new WeightRandomLoadBalancer.Ref<>(ConnectivityStateInfo.forNonError(IDLE)));
 
             final Subchannel subchannel = checkNotNull(
                     helper.createSubchannel(CreateSubchannelArgs.newBuilder()
@@ -96,36 +79,36 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
             subchannel.start(new SubchannelStateListener() {
                 @Override
                 public void onSubchannelState(ConnectivityStateInfo state) {
-                    processSubchannelState(subchannel, state);
+                    processSubchannelState(subchannel, state,weightMap);
                 }
             });
             subchannels.put(strippedAddressGroup, subchannel);
             subchannel.requestConnection();
         }
 
-//        ArrayList<Subchannel> removedSubchannels = new ArrayList<>();
-//        for (EquivalentAddressGroup addressGroup : removedAddrs) {
-//            removedSubchannels.add(subchannels.remove(addressGroup));
-//        }
+        ArrayList<Subchannel> removedSubchannels = new ArrayList<>();
+        for (EquivalentAddressGroup addressGroup : removedAddrs) {
+            removedSubchannels.add(subchannels.remove(addressGroup));
+        }
 
         // Update the picker before shutting down the subchannels, to reduce the chance of the race
         // between picking a subchannel and shutting it down.
-//        updateBalancingState();
+        updateBalancingState(weightMap);
 
         // Shutdown removed subchannels
-//        for (Subchannel removedSubchannel : removedSubchannels) {
-//            shutdownSubchannel(removedSubchannel);
-//        }
+        for (Subchannel removedSubchannel : removedSubchannels) {
+            shutdownSubchannel(removedSubchannel);
+        }
     }
 
     @Override
     public void handleNameResolutionError(Status error) {
         if (currentState != READY) {
-            updateBalancingState(TRANSIENT_FAILURE, new EmptyPicker(error));
+            updateBalancingState(TRANSIENT_FAILURE, new WeightRandomLoadBalancer.EmptyPicker(error));
         }
     }
 
-    private void processSubchannelState(Subchannel subchannel, ConnectivityStateInfo stateInfo) {
+    private void processSubchannelState(Subchannel subchannel, ConnectivityStateInfo stateInfo,Map<String, Integer> weightMap) {
         if (subchannels.get(stripAttrs(subchannel.getAddresses())) != subchannel) {
             return;
         }
@@ -135,14 +118,14 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         if (stateInfo.getState() == IDLE) {
             subchannel.requestConnection();
         }
-        Ref<ConnectivityStateInfo> subchannelStateRef = getSubchannelStateInfoRef(subchannel);
+        WeightRandomLoadBalancer.Ref<ConnectivityStateInfo> subchannelStateRef = getSubchannelStateInfoRef(subchannel);
         if (subchannelStateRef.value.getState().equals(TRANSIENT_FAILURE)) {
             if (stateInfo.getState().equals(CONNECTING) || stateInfo.getState().equals(IDLE)) {
                 return;
             }
         }
         subchannelStateRef.value = stateInfo;
-        updateBalancingState();
+        updateBalancingState(weightMap);
     }
 
     private void shutdownSubchannel(Subchannel subchannel) {
@@ -165,7 +148,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
      * Updates picker with the list of active subchannels (state == READY).
      */
     @SuppressWarnings("ReferenceEquality")
-    private void updateBalancingState() {
+    private void updateBalancingState(Map<String, Integer> weightMap) {
         List<Subchannel> activeList = filterNonFailingSubchannels(getSubchannels());
         if (activeList.isEmpty()) {
             // No READY subchannels, determine aggregate state and error status
@@ -186,18 +169,17 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
             updateBalancingState(isConnecting ? CONNECTING : TRANSIENT_FAILURE,
                     // If all subchannels are TRANSIENT_FAILURE, return the Status associated with
                     // an arbitrary subchannel, otherwise return OK.
-                    new EmptyPicker(aggStatus));
+                    new WeightRandomLoadBalancer.EmptyPicker(aggStatus));
         } else {
             // initialize the Picker to a random start index to ensure that a high frequency of Picker
             // churn does not skew subchannel selection.
             int startIndex = random.nextInt(activeList.size());
-            updateBalancingState(READY, new ReadyPicker(activeList, subchannels, startIndex));
+            updateBalancingState(READY, new WeightRandomLoadBalancer.ReadyPicker(activeList, startIndex, subchannels, weightMap));
         }
     }
 
-    private void updateBalancingState(ConnectivityState state, WeigthRandomPicker picker) {
+    private void updateBalancingState(ConnectivityState state, WeightRandomLoadBalancer.WeightRandomPicker picker) {
         if (state != currentState || !picker.isEquivalentTo(currentPicker)) {
-            helper.updateBalancingState(state, picker);
             helper.updateBalancingState(state, picker);
             currentState = state;
             currentPicker = picker;
@@ -240,7 +222,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         return subchannels.values();
     }
 
-    private static Ref<ConnectivityStateInfo> getSubchannelStateInfoRef(
+    private static WeightRandomLoadBalancer.Ref<ConnectivityStateInfo> getSubchannelStateInfoRef(
             Subchannel subchannel) {
         return checkNotNull(subchannel.getAttributes().get(STATE_INFO), "STATE_INFO");
     }
@@ -257,27 +239,30 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
     }
 
     // Only subclasses are ReadyPicker or EmptyPicker
-    private abstract static class WeigthRandomPicker extends SubchannelPicker {
-        abstract boolean isEquivalentTo(WeigthRandomPicker picker);
+    private abstract static class WeightRandomPicker extends SubchannelPicker {
+        abstract boolean isEquivalentTo(WeightRandomLoadBalancer.WeightRandomPicker picker);
     }
 
     @VisibleForTesting
-    static final class ReadyPicker extends WeigthRandomPicker {
-        private static final AtomicIntegerFieldUpdater<ReadyPicker> indexUpdater =
-                AtomicIntegerFieldUpdater.newUpdater(ReadyPicker.class, "index");
-        private final Map<EquivalentAddressGroup, Subchannel> currentSubchannelMap;
-
+    static final class ReadyPicker extends WeightRandomLoadBalancer.WeightRandomPicker {
+        private static final AtomicIntegerFieldUpdater<WeightRandomLoadBalancer.ReadyPicker> indexUpdater =
+                AtomicIntegerFieldUpdater.newUpdater(WeightRandomLoadBalancer.ReadyPicker.class, "index");
+        private Map<EquivalentAddressGroup, Subchannel> currentSubchannelMap;
+        private  Map<String, Integer> weightMap;
         private final List<Subchannel> list; // non-empty
         @SuppressWarnings("unused")
         private volatile int index;
 
         ReadyPicker(List<Subchannel> list,
+                    int startIndex,
                     Map<EquivalentAddressGroup, Subchannel> currentSubchannelMap,
-                    int startIndex) {
+                    Map<String, Integer> weightMap
+                    ) {
             Preconditions.checkArgument(!list.isEmpty(), "empty list");
             this.list = list;
-            this.currentSubchannelMap = currentSubchannelMap;
             this.index = startIndex - 1;
+            this.currentSubchannelMap = currentSubchannelMap;
+            this.weightMap=weightMap;
         }
 
         @Override
@@ -287,7 +272,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(ReadyPicker.class).add("list", list).toString();
+            return MoreObjects.toStringHelper(WeightRandomLoadBalancer.ReadyPicker.class).add("list", list).toString();
         }
 
 //        private Subchannel nextSubchannel() {
@@ -315,13 +300,14 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
          * @return
          */
         private Subchannel nextSubchannel() {
-            Map<String, Integer> weightMap = list.get(0).getAttributes().get(GrpcConstants.WEIGHT_LIST_KEY);
             List<WeightRandomLoadBalancer.WeightSubchannel> weightSubchannelList = Lists.newArrayList();
             Random random = new Random();
 
             for (Map.Entry<EquivalentAddressGroup, Subchannel> entry : currentSubchannelMap.entrySet()) {
-                weightSubchannelList.add(new WeightRandomLoadBalancer.WeightSubchannel(entry.getValue(),
-                        weightMap.get(entry.getKey().getAddresses().get(0).toString().replace("/", ""))));
+                if (list.contains(entry.getValue())) {
+                    weightSubchannelList.add(new WeightRandomLoadBalancer.WeightSubchannel(entry.getValue(),
+                            weightMap.get(entry.getKey().getAddresses().get(0).toString().replace("/", ""))));
+                }
             }
 
             Integer weightSum = 0;
@@ -344,18 +330,17 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
             return list.get(0);
         }
 
-
         @VisibleForTesting
         List<Subchannel> getList() {
             return list;
         }
 
         @Override
-        boolean isEquivalentTo(WeigthRandomPicker picker) {
-            if (!(picker instanceof ReadyPicker)) {
+        boolean isEquivalentTo(WeightRandomLoadBalancer.WeightRandomPicker picker) {
+            if (!(picker instanceof WeightRandomLoadBalancer.ReadyPicker)) {
                 return false;
             }
-            ReadyPicker other = (ReadyPicker) picker;
+            WeightRandomLoadBalancer.ReadyPicker other = (WeightRandomLoadBalancer.ReadyPicker) picker;
             // the lists cannot contain duplicate subchannels
             return other == this
                     || (list.size() == other.list.size() && new HashSet<>(list).containsAll(other.list));
@@ -363,7 +348,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
     }
 
     @VisibleForTesting
-    static final class EmptyPicker extends WeigthRandomPicker {
+    static final class EmptyPicker extends WeightRandomLoadBalancer.WeightRandomPicker {
 
         private final Status status;
 
@@ -377,14 +362,14 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         }
 
         @Override
-        boolean isEquivalentTo(WeigthRandomPicker picker) {
-            return picker instanceof EmptyPicker && (Objects.equal(status, ((EmptyPicker) picker).status)
-                    || (status.isOk() && ((EmptyPicker) picker).status.isOk()));
+        boolean isEquivalentTo(WeightRandomLoadBalancer.WeightRandomPicker picker) {
+            return picker instanceof WeightRandomLoadBalancer.EmptyPicker && (Objects.equal(status, ((WeightRandomLoadBalancer.EmptyPicker) picker).status)
+                    || (status.isOk() && ((WeightRandomLoadBalancer.EmptyPicker) picker).status.isOk()));
         }
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(EmptyPicker.class).add("status", status).toString();
+            return MoreObjects.toStringHelper(WeightRandomLoadBalancer.EmptyPicker.class).add("status", status).toString();
         }
     }
 
