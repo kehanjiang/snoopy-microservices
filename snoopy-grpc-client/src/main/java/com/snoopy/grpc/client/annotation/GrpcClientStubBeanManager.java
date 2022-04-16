@@ -121,9 +121,6 @@ public class GrpcClientStubBeanManager implements Closeable {
         IRegistry registry = configurableListableBeanFactory.getBean(RegistryProviderFactory.class).
                 newRegistryProviderInstance().newRegistryInstance(grpcRegistryProperties);
 
-        //注册自定义服务均衡策略
-        LoadBalancerRegistry.getDefaultRegistry().register(new WeightRandomLoadBalancerProvider());
-
         NettyChannelBuilder builder = NetUtil.isIpAddress(host)
                 ? NettyChannelBuilder.forAddress(host, port).overrideAuthority(grpcSecurityProperties.getAuthority())
                 : NettyChannelBuilder.forTarget("")
