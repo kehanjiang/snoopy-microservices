@@ -3,10 +3,7 @@ package com.snoopy.grpc.client.annotation;
 import com.snoopy.grpc.base.configure.GrpcRegistryProperties;
 import com.snoopy.grpc.base.configure.GrpcSecurityProperties;
 import com.snoopy.grpc.base.constans.GrpcConstants;
-import com.snoopy.grpc.base.registry.IRegistry;
-import com.snoopy.grpc.base.registry.RegistryNameResolverProvider;
-import com.snoopy.grpc.base.registry.RegistryProviderFactory;
-import com.snoopy.grpc.base.registry.RegistryServiceInfo;
+import com.snoopy.grpc.base.registry.*;
 import com.snoopy.grpc.base.utils.NetUtil;
 import com.snoopy.grpc.client.balance.weight.WeightRandomLoadBalancerProvider;
 import com.snoopy.grpc.client.configure.GrpcClientProperties;
@@ -23,11 +20,10 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.util.SocketUtils;
 
 import javax.net.ssl.SSLException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
@@ -35,15 +31,26 @@ import static java.util.Objects.requireNonNull;
  * @author :   kehanjiang
  * @date :   2021/12/6  9:21
  */
-public class GrpcClientStubBeanManager {
+public class GrpcClientStubBeanManager implements Closeable {
     private List<ClientInterceptor> privateInterceptors;
     private ConfigurableListableBeanFactory configurableListableBeanFactory;
+    private Map<String, ManagedChannel> channelMap;
+    private static volatile GrpcClientStubBeanManager instance;
 
-    public GrpcClientStubBeanManager(
-            List<ClientInterceptor> privateInterceptors,
-            ConfigurableListableBeanFactory configurableListableBeanFactory) {
-        this.privateInterceptors = privateInterceptors;
-        this.configurableListableBeanFactory = configurableListableBeanFactory;
+    private GrpcClientStubBeanManager() {
+        channelMap = new HashMap<>();
+        ShutDownHookManager.registerShutdownHook(this);
+    }
+
+    public static GrpcClientStubBeanManager getInstance() {
+        if (instance == null) {
+            synchronized (GrpcClientStubBeanManager.class) {
+                if (instance == null) {
+                    instance = new GrpcClientStubBeanManager();
+                }
+            }
+        }
+        return instance;
     }
 
     public Object newStubBean(
@@ -53,7 +60,11 @@ public class GrpcClientStubBeanManager {
             String beanName,
             StubType type,
             String namespace,
-            String alias) {
+            String alias,
+            List<ClientInterceptor> privateInterceptors,
+            ConfigurableListableBeanFactory configurableListableBeanFactory) {
+        this.privateInterceptors = privateInterceptors;
+        this.configurableListableBeanFactory = configurableListableBeanFactory;
         DefaultListableBeanFactory springFactory = (DefaultListableBeanFactory) configurableListableBeanFactory;
         try {
             //取得内部类
@@ -62,7 +73,12 @@ public class GrpcClientStubBeanManager {
                     .toString();
 
             Class serviceClass = Class.forName(serviceClassName);
-            ManagedChannel channel = createManagedChannel(host, port, namespace, alias);
+            String channelKey = host + "@" + port + "@" + namespace + "@" + alias;
+            ManagedChannel channel = channelMap.get(channelKey);
+            if (channel == null) {
+                channel = createManagedChannel(host, port, namespace, alias);
+                channelMap.put(channelKey, channel);
+            }
             AbstractStub<?> newStubClass = null;
             switch (type) {
                 case ASYNC:
@@ -165,4 +181,11 @@ public class GrpcClientStubBeanManager {
         return builder.build();
     }
 
+    @Override
+    public void close() throws IOException {
+        for (ManagedChannel channel : channelMap.values()) {
+            channel.shutdown();
+        }
+        channelMap.clear();
+    }
 }

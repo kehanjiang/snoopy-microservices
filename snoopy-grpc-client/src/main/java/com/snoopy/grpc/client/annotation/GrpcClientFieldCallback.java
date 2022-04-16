@@ -62,8 +62,8 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
 
         Object stubBeanInstance = configurableListableBeanFactory.containsBean(beanName)
                 ? configurableListableBeanFactory.getBean(beanName)
-                : new GrpcClientStubBeanManager(privateInterceptors, configurableListableBeanFactory)
-                .newStubBean(null, 0, clazz, beanName, type, namespace, alias);
+                : GrpcClientStubBeanManager.getInstance()
+                .newStubBean(null, 0, clazz, beanName, type, namespace, alias, privateInterceptors, configurableListableBeanFactory);
 
         //设置字段可访问
         ReflectionUtils.makeAccessible(field);
