@@ -111,6 +111,8 @@ public class GrpcSecurityProperties extends GrpcBaseProperties {
 
         private String keyPassword = null;
 
+        private Boolean enabledOcsp = false;
+
         public File getCertFile() {
             try {
                 return ResourceUtils.getFile(certFile);
@@ -142,6 +144,14 @@ public class GrpcSecurityProperties extends GrpcBaseProperties {
         public void setKeyPassword(String keyPassword) {
             this.keyPassword = keyPassword;
         }
+
+        public Boolean getEnabledOcsp() {
+            return enabledOcsp;
+        }
+
+        public void setEnabledOcsp(Boolean enabledOcsp) {
+            this.enabledOcsp = enabledOcsp;
+        }
     }
 
     public static class Server {
@@ -152,6 +162,8 @@ public class GrpcSecurityProperties extends GrpcBaseProperties {
         private String keyPassword = null;
 
         private ClientAuth clientAuth = ClientAuth.REQUIRE;
+
+        private Boolean enabledOcsp = false;
 
         public File getCertFile() {
             try {
@@ -191,6 +203,14 @@ public class GrpcSecurityProperties extends GrpcBaseProperties {
 
         public void setClientAuth(ClientAuth clientAuth) {
             this.clientAuth = clientAuth;
+        }
+
+        public Boolean getEnabledOcsp() {
+            return enabledOcsp;
+        }
+
+        public void setEnabledOcsp(Boolean enabledOcsp) {
+            this.enabledOcsp = enabledOcsp;
         }
     }
 }

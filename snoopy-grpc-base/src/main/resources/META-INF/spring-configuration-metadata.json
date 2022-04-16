@@ -76,6 +76,13 @@
     },
     {
       "sourceType": "",
+      "name": "snoopy.grpc.security.server.enabledOcsp",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "是否开启在线证书状态协议OCSP。 默认false"
+    },
+    {
+      "sourceType": "",
       "name": "snoopy.grpc.security.client.certFile",
       "type": "org.springframework.core.io.Resource",
       "description": " 客户端证书文件, X.509 PEM格式"
@@ -91,6 +98,13 @@
       "name": "snoopy.grpc.security.client.keyPassword",
       "type": "java.lang.String",
       "description": "客户端证书私钥文件保护密码，如果私钥文件无密码保护则不用配置"
+    },
+    {
+      "sourceType": "",
+      "name": "snoopy.grpc.security.client.enabledOcsp",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "是否开启在线证书状态协议OCSP。 默认false"
     },
     {
       "sourceType": "",
@@ -148,6 +162,32 @@
         },
         {
           "value": "REQUIRE",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "snoopy.grpc.security.server.enabledOcsp",
+      "values": [
+        {
+          "value": true,
+          "description": ""
+        },
+        {
+          "value": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "snoopy.grpc.security.client.enabledOcsp",
+      "values": [
+        {
+          "value": true,
+          "description": ""
+        },
+        {
+          "value": false,
           "description": ""
         }
       ]

@@ -164,6 +164,8 @@ public class GrpcClientStubBeanManager implements Closeable {
                 }
             }
 
+            sslContextBuilder.enableOcsp(client.getEnabledOcsp());
+
             if (grpcSecurityProperties.getCiphers() != null && !grpcSecurityProperties.getCiphers().isEmpty()) {
                 sslContextBuilder.ciphers(grpcSecurityProperties.getCiphers());
             }

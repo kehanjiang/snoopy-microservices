@@ -62,6 +62,8 @@ public class GrpcSecurityProcess implements IGrpcProcess {
                 }
             }
 
+            sslContextBuilder.enableOcsp(server.getEnabledOcsp());
+
             if (grpcSecurityProperties.getCiphers() != null && !grpcSecurityProperties.getCiphers().isEmpty()) {
                 sslContextBuilder.ciphers(grpcSecurityProperties.getCiphers());
             }
