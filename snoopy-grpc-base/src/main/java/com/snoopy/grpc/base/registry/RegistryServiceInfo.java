@@ -23,17 +23,13 @@ public class RegistryServiceInfo {
     private String protocol;
     private String host;
     private int port;
-    private Map<String, String> parameters = new HashMap<>();
+    private Map<String, String> parameters;
 
     public RegistryServiceInfo() {
     }
 
     public RegistryServiceInfo(String namespace, String alias, String protocol, String host, int port) {
-        this.namespace = namespace;
-        this.alias = alias;
-        this.protocol = protocol;
-        this.host = host;
-        this.port = port;
+        this(namespace, alias, protocol, host, port, new HashMap<>());
     }
 
     public RegistryServiceInfo(String namespace, String alias, String protocol, String host, int port, Map<String, String> parameters) {
