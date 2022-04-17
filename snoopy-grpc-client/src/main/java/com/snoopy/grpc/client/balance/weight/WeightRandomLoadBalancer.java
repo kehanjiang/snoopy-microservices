@@ -33,6 +33,8 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
     private ConnectivityState currentState;
     private WeightRandomLoadBalancer.WeightRandomPicker currentPicker = new WeightRandomLoadBalancer.EmptyPicker(EMPTY_OK);
 
+    private Map<String, Integer> weightMap = new HashMap<>();
+
     WeightRandomLoadBalancer(Helper helper) {
         this.helper = checkNotNull(helper, "helper");
         this.random = new Random();
@@ -46,7 +48,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         Set<EquivalentAddressGroup> removedAddrs = setsDifference(currentAddrs, latestAddrs.keySet());
 
         Attributes attributes = resolvedAddresses.getAttributes();
-        Map<String, Integer> weightMap = attributes.get(GrpcConstants.WEIGHT_LIST_KEY);
+        weightMap = attributes.get(GrpcConstants.WEIGHT_LIST_KEY);
 
         for (Map.Entry<EquivalentAddressGroup, EquivalentAddressGroup> latestEntry :
                 latestAddrs.entrySet()) {
@@ -79,7 +81,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
             subchannel.start(new SubchannelStateListener() {
                 @Override
                 public void onSubchannelState(ConnectivityStateInfo state) {
-                    processSubchannelState(subchannel, state,weightMap);
+                    processSubchannelState(subchannel, state);
                 }
             });
             subchannels.put(strippedAddressGroup, subchannel);
@@ -108,7 +110,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         }
     }
 
-    private void processSubchannelState(Subchannel subchannel, ConnectivityStateInfo stateInfo,Map<String, Integer> weightMap) {
+    private void processSubchannelState(Subchannel subchannel, ConnectivityStateInfo stateInfo) {
         if (subchannels.get(stripAttrs(subchannel.getAddresses())) != subchannel) {
             return;
         }
@@ -179,11 +181,9 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
     }
 
     private void updateBalancingState(ConnectivityState state, WeightRandomLoadBalancer.WeightRandomPicker picker) {
-        if (state != currentState || !picker.isEquivalentTo(currentPicker)) {
-            helper.updateBalancingState(state, picker);
-            currentState = state;
-            currentPicker = picker;
-        }
+        helper.updateBalancingState(state, picker);
+        currentState = state;
+        currentPicker = picker;
     }
 
     /**
