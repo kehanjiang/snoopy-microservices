@@ -35,13 +35,13 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
     @Override
     public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
         try {
-            Class<?> clazz = field.getType();
-            String beanName = clazz.getName();
+            Class<?> subStubClazz = field.getType();
+            String beanName = subStubClazz.getName();
             if (!configurableListableBeanFactory.containsBean(beanName)) {
                 SnoopyGrpcClient annotation = AnnotationUtils.findAnnotation(field, SnoopyGrpcClient.class);
                 List<ClientInterceptor> privateInterceptors = new ArrayList<>();
-                for (Class<? extends ClientInterceptor> clz : annotation.interceptors()) {
-                    privateInterceptors.add(loadPrivateInterceptorBean(clz));
+                for (Class<? extends ClientInterceptor> clazz : annotation.interceptors()) {
+                    privateInterceptors.add(loadPrivateInterceptorBean(clazz));
                 }
                 boolean applyGlobalClientInterceptors = annotation.applyGlobalClientInterceptors();
 
@@ -53,17 +53,10 @@ public class GrpcClientFieldCallback implements ReflectionUtils.FieldCallback {
                 namespace = StringUtils.hasText(namespace) ? namespace : GrpcConstants.DEFAULT_NAMESPACE;
                 String alias = annotation.alias();
 
-                Class serviceClass = null;
-
-                String serviceClassName = clazz.getCanonicalName()
-                        .subSequence(0, clazz.getCanonicalName().length() - clazz.getSimpleName().length() - 1)
-                        .toString();
-                serviceClass = Class.forName(serviceClassName);
-
                 SnoopyServiceEndpoint serviceEndpoint = new SnoopyServiceEndpoint(
                         namespace,
                         alias,
-                        serviceClass,
+                        subStubClazz,
                         configurableListableBeanFactory,
                         applyGlobalClientInterceptors,
                         privateInterceptors

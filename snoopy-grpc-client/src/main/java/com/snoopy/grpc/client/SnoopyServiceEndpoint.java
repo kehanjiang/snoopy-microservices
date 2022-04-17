@@ -36,7 +36,7 @@ public class SnoopyServiceEndpoint implements ServiceEndpoint {
     private int port;
     private String namespace;
     private String alias;
-    private Class serviceClass;
+    private Class parentGrpcClazz;
 
     private List<ClientInterceptor> privateInterceptors;
     private GrpcClientProperties grpcClientProperties;
@@ -47,28 +47,28 @@ public class SnoopyServiceEndpoint implements ServiceEndpoint {
     public SnoopyServiceEndpoint(
             String namespace,
             String alias,
-            Class serviceClass,
-            ConfigurableListableBeanFactory configurableListableBeanFactory) {
-        this(null, -1, namespace, alias, serviceClass, true, configurableListableBeanFactory, new ArrayList<>());
+            Class subStubClazz,
+            ConfigurableListableBeanFactory configurableListableBeanFactory) throws ClassNotFoundException {
+        this(null, -1, namespace, alias, subStubClazz, true, configurableListableBeanFactory, new ArrayList<>());
     }
 
     public SnoopyServiceEndpoint(
             String namespace,
             String alias,
-            Class serviceClass,
+            Class subStubClazz,
             boolean applyGlobalClientInterceptors,
-            ConfigurableListableBeanFactory configurableListableBeanFactory) {
-        this(null, -1, namespace, alias, serviceClass, applyGlobalClientInterceptors, configurableListableBeanFactory, new ArrayList<>());
+            ConfigurableListableBeanFactory configurableListableBeanFactory) throws ClassNotFoundException {
+        this(null, -1, namespace, alias, subStubClazz, applyGlobalClientInterceptors, configurableListableBeanFactory, new ArrayList<>());
     }
 
     public SnoopyServiceEndpoint(
             String namespace,
             String alias,
-            Class serviceClass,
+            Class subStubClazz,
             ConfigurableListableBeanFactory configurableListableBeanFactory,
             boolean applyGlobalClientInterceptors,
-            List<ClientInterceptor> privateInterceptors) {
-        this(null, -1, namespace, alias, serviceClass, applyGlobalClientInterceptors, configurableListableBeanFactory, privateInterceptors);
+            List<ClientInterceptor> privateInterceptors) throws ClassNotFoundException {
+        this(null, -1, namespace, alias, subStubClazz, applyGlobalClientInterceptors, configurableListableBeanFactory, privateInterceptors);
     }
 
     public SnoopyServiceEndpoint(
@@ -76,10 +76,10 @@ public class SnoopyServiceEndpoint implements ServiceEndpoint {
             int port,
             String namespace,
             String alias,
-            Class serviceClass,
+            Class subStubClazz,
             boolean applyGlobalClientInterceptors,
             ConfigurableListableBeanFactory configurableListableBeanFactory,
-            List<ClientInterceptor> privateInterceptors) {
+            List<ClientInterceptor> privateInterceptors) throws ClassNotFoundException {
         this.host = host;
         this.port = port;
 
@@ -87,8 +87,13 @@ public class SnoopyServiceEndpoint implements ServiceEndpoint {
         requireNonNull(namespace, "namespace must not be null");
         this.alias = alias;
         requireNonNull(alias, "alias must not be null");
-        this.serviceClass = serviceClass;
-        requireNonNull(serviceClass, "serviceClass must not be null");
+
+        requireNonNull(subStubClazz, "subStubClazz must not be null");
+        String parentGrpcClazzName = subStubClazz.getCanonicalName()
+                .subSequence(0, subStubClazz.getCanonicalName().length() - subStubClazz.getSimpleName().length() - 1)
+                .toString();
+        this.parentGrpcClazz = Class.forName(parentGrpcClazzName);
+
         this.privateInterceptors = Optional.ofNullable(privateInterceptors).orElse(new ArrayList<>());
         if (applyGlobalClientInterceptors) {
             Collection<String> beanNames = Arrays.asList(
@@ -112,12 +117,12 @@ public class SnoopyServiceEndpoint implements ServiceEndpoint {
 
     @Override
     public Class getSvcClass() {
-        return this.serviceClass;
+        return this.parentGrpcClazz;
     }
 
     @Override
     public String getChannelId() {
-        return host + "@" + port + "@" + namespace + "@" + alias + "@" + serviceClass;
+        return host + "@" + port + "@" + namespace + "@" + alias + "@" + parentGrpcClazz;
     }
 
     @Override
